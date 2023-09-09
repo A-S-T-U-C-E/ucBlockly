@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>µcBlockly</title>
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+</head>
+
+<body>
+  <flex id="container_page" class="wrapper_global">
+    <div class="divTableCell">
+      <div class="lang" key="HOME">µcBlockly</div>
+      <div class="lang" key="ABOUT">About</div>
+      <div class="lang" key="CONTACT">Contact</div>
+      <select id="languageMenu"></select>
+    </div>
+    <flex id="flex_container_up" class="wrapper_element" style="flex: 1;">
+      <flex-item id="flex_container_up_left" style="flex: 1;">
+        <div id="div_workspace_content_area"></div>
+        <div id="div_workspace_content_blockly" style="position: absolute"></div>
+      </flex-item>
+      <flex-resizer></flex-resizer>
+      <flex-item id="flex_container_up_right" style="flex-basis: 20px;">
+        <pre id="div_code_generated" style="flex: 1;"><code></code></pre>
+      </flex-item>
+    </flex>
+    <flex-resizer></flex-resizer>
+    <flex id="flex_container_bottom" class="wrapper_element" style="flex-basis: 10px;">
+      <flex-item id="flex_container_bottom_down" style="flex: 1;">
+        <pre id="content_console"><code></code></pre>
+      </flex-item>
+    </flex>
+  </flex>
+</body>
+
+</html>

@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "declaration": true,
+    "declarationMap": true,
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "target": "ES2022",
+    "types": [
+      "node"
+    ],
+    "strict": true,
+  },
+  "typedocOptions": {
+      "entryPoints": ["src/index.ts"],
+      "out": "docs"
+  }
+}
