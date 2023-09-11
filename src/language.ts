@@ -74,7 +74,7 @@ const µcB_changeLanguage = (): void => {
   µcB_changeLanguageToolbox(newLang);
   genWorkspace(rtl);
   workspaceLoadBlocks(µcB.workspace);
-  (µcB.workspace as Blockly.WorkspaceSvg).scrollCenter();
+  (µcB.workspace as Blockly.WorkspaceSvg).scrollCenter();  
 };
 
 /**

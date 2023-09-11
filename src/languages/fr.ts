@@ -8,6 +8,7 @@ export const frLang: LanguageMap = {
     PLUGIN_MINIMAP: "Miniature",
     PLUGIN_KEYBOARDNAV: "Clavier",
     PLUGIN_HIGHLIGHT: "highlight",
+    PLUGIN_CONTINUOUSTOOLBOX: "toolbox",
     CAT_LOGIC: "Logique",
     CAT_LOOPS: "Boucles",
     CAT_MATHS: "Math",

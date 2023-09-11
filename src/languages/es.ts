@@ -8,6 +8,7 @@ export const esLang: LanguageMap = {
     PLUGIN_MINIMAP: "minimap",
     PLUGIN_KEYBOARDNAV: "keyboard nav",
     PLUGIN_HIGHLIGHT: "highlight",
+    PLUGIN_CONTINUOUSTOOLBOX: "toolbox",
     CAT_LOGIC: "Lógica",
     CAT_LOOPS: "Secuencias",
     CAT_MATHS: "Matemáticas",

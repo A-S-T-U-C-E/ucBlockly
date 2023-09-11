@@ -8,6 +8,7 @@ export const arLang: LanguageMap = {
     PLUGIN_MINIMAP: "minimap",
     PLUGIN_KEYBOARDNAV: "keyboard nav",
     PLUGIN_HIGHLIGHT: "highlight",
+    PLUGIN_CONTINUOUSTOOLBOX: "toolbox",
     CAT_LOGIC: "منطق",
     CAT_LOOPS: "الحلقات",
     CAT_MATHS: "رياضيات",

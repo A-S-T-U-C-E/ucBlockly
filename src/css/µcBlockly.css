@@ -18,7 +18,7 @@ flex>flex-resizer {
 .divTableCell div {
   width: 100px;
   display: inline-block;
-  padding: 5px;
+  padding: 2px;
   text-align: center;
   color: #000000;
   font-family: arial, sans-serif;

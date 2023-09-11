@@ -111,9 +111,11 @@ export const µcB: BlocklyApplicationType = {
   'fr': 'Français'
 };
 
-// particular to this plugin
+// particular to this plugins
 const navigationpluginKeyboardNav = new NavigationController();
 let contentHighlight = new ContentHighlight();
+let minimap = new PositionedMinimap();
+
 /**
  * List of RTL languages.
  */
@@ -371,33 +373,24 @@ export const rebootWorkspace = (): void => {
   setupWorkspacePlugins(µcB.workspace, true);
   µcB.workspace.dispose();
   µcB.workspace = Blockly.inject(div_workspace_content_blockly, µcB.WORKSPACE_OPTIONS);
-  setupWorkspacePlugins(µcB.workspace);
   console.log(window.sessionStorage.getItem('mainWorkspace_blocks'))
+  setupWorkspacePlugins(µcB.workspace, false);
   workspaceLoadBlocks(µcB.workspace);
 }
 
 // The function `setupWorkspacePlugins` sets up all plugins added in workspace
 const setupWorkspacePlugins = (workspace: Blockly.Workspace, disposePlugin: boolean = false): void => {
-  disposePlugin ? console.log('destroy plugins') : console.log('init plugins')
   const backpack = new Backpack(workspace as Blockly.WorkspaceSvg);
   disposePlugin ? backpack.dispose() : backpack.init();
-  disposePlugin ? console.log('destroy backpack') : console.log('init backpack')
-  const minimap = new PositionedMinimap(workspace);
-  disposePlugin ? minimap.dispose() : minimap.init();
-  disposePlugin ? console.log('destroy minimap') : console.log('init minimap')
   const zoomToFit = new ZoomToFitControl(workspace);
   disposePlugin ? zoomToFit.dispose() : zoomToFit.init();
-  disposePlugin ? console.log('destroy zoomToFit') : console.log('init zoomToFit')
   const workspaceSearch = new WorkspaceSearch(workspace);
   disposePlugin ? workspaceSearch.dispose() : workspaceSearch.init();
-  disposePlugin ? console.log('destroy workspaceSearch') : console.log('init workspaceSearch')
   const pluginHighlightCheck = <HTMLInputElement>document.getElementById('pluginHighlight');
   if (pluginHighlightCheck.checked)
     disposePlugin ? contentHighlight.dispose() : contentHighlight.init();
-  disposePlugin ? console.log('destroy contentHighlight') : console.log('init contentHighlight')
   const modal = new Modal(workspace);
   disposePlugin ? modal.dispose() : modal.init();
-  disposePlugin ? console.log('destroy modal') : console.log('init modal')
   //particular to this plugin
   if (!disposePlugin) {
     navigationpluginKeyboardNav.init();
@@ -406,7 +399,13 @@ const setupWorkspacePlugins = (workspace: Blockly.Workspace, disposePlugin: bool
     navigationpluginKeyboardNav.removeWorkspace(workspace);
     navigationpluginKeyboardNav.dispose();
   }
-  disposePlugin ? console.log('destroy navigationpluginKeyboardNav') : console.log('init navigationpluginKeyboardNav')
+  //particular to this plugin
+  if (!disposePlugin) {
+    minimap = new PositionedMinimap(workspace);
+    minimap.init();
+  } else {
+    minimap.dispose();
+  }
   µcB.workspace.addChangeListener(shadowBlockConversionChangeListener);
   /*const plugin = new ScrollOptions(µcB.workspace);
   plugin.init();*/
@@ -454,7 +453,7 @@ window.onload = (): void => {
   if (window.sessionStorage.getItem('flex_container_up_right')) tempComponent.style.flexGrow = window.sessionStorage.getItem('flex_container_up_right')!;
   tempComponent = document.getElementById("flex_container_bottom")!;
   if (window.sessionStorage.getItem('flex_container_bottom')) tempComponent.style.flexGrow = window.sessionStorage.getItem('flex_container_bottom')!;
-  setupWorkspacePlugins(µcB.workspace);
+  setupWorkspacePlugins(µcB.workspace, false);
   HTMLonChange();
   µcB_workspaceOnResize();
   console.log(window.sessionStorage.getItem('mainWorkspace_blocks'))
