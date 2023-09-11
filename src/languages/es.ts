@@ -5,6 +5,9 @@ export const esLang: LanguageMap = {
     HOME: "µcBlockly",
     ABOUT: "por cierto",
     CONTACT: "contacto",
+    PLUGIN_MINIMAP: "minimap",
+    PLUGIN_KEYBOARDNAV: "keyboard nav",
+    PLUGIN_HIGHLIGHT: "highlight",
     CAT_LOGIC: "Lógica",
     CAT_LOOPS: "Secuencias",
     CAT_MATHS: "Matemáticas",
@@ -13,5 +16,13 @@ export const esLang: LanguageMap = {
     CAT_COLOR: "Color",
     CAT_VARIABLES: "Variables",
     CAT_FUNCTIONS: "Funciones",
+    THEME_CLASSIC: "classic",
+    THEME_MODERN: "modern",
+    THEME_DEUTERANOPIA: "deuteranopia",
+    THEME_TRITANOPIA: "tritanopia",
+    THEME_ZELOS: "zelos",
+    THEME_HIGHCONTRAST: "high contrast",
+    THEME_DARK: "dark",
+    THEME_BLACKWHITE: "black and white",
   }
 };

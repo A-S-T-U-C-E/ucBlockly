@@ -1,0 +1,16 @@
+declare module "@blockly/workspace-backpack";
+declare module "@blockly/workspace-minimap";
+declare module "@blockly/zoom-to-fit";
+declare module "@blockly/continuous-toolbox";
+declare module "@blockly/plugin-scroll-options";
+declare module "@blockly/plugin-workspace-search";
+declare module "@blockly/workspace-content-highlight";
+declare module "@blockly/plugin-modal";
+declare module "@blockly/keyboard-navigation";
+declare module "@mit-app-inventor/blockly-plugin-workspace-multiselect";
+declare module "@blockly/toolbox-search";
+declare module "@blockly/theme-dark";
+declare module "@blockly/theme-modern";
+declare module "@blockly/theme-highcontrast";
+declare module "@blockly/theme-deuteranopia";
+declare module "@blockly/theme-tritanopia";

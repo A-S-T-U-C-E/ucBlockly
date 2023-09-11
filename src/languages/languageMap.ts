@@ -56,6 +56,9 @@ export interface LanguageItem {
   HOME: string;
   ABOUT: string;
   CONTACT: string;
+  PLUGIN_MINIMAP: string;
+  PLUGIN_KEYBOARDNAV: string;
+  PLUGIN_HIGHLIGHT: string;
   CAT_LOGIC: string;
   CAT_LOOPS: string;
   CAT_MATHS: string;
@@ -64,4 +67,12 @@ export interface LanguageItem {
   CAT_COLOR: string;
   CAT_VARIABLES: string;
   CAT_FUNCTIONS: string;
+  THEME_CLASSIC: string;
+  THEME_MODERN: string;
+  THEME_DEUTERANOPIA: string;
+  THEME_TRITANOPIA: string;
+  THEME_ZELOS: string;
+  THEME_HIGHCONTRAST: string;
+  THEME_DARK: string;
+  THEME_BLACKWHITE: string;
 }

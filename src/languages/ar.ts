@@ -5,6 +5,9 @@ export const arLang: LanguageMap = {
     HOME: "µcBlockly",
     ABOUT: "في ما يخص",
     CONTACT: "اتصال",
+    PLUGIN_MINIMAP: "minimap",
+    PLUGIN_KEYBOARDNAV: "keyboard nav",
+    PLUGIN_HIGHLIGHT: "highlight",
     CAT_LOGIC: "منطق",
     CAT_LOOPS: "الحلقات",
     CAT_MATHS: "رياضيات",
@@ -13,5 +16,13 @@ export const arLang: LanguageMap = {
     CAT_COLOR: "لون",
     CAT_VARIABLES: "متغيرات",
     CAT_FUNCTIONS: "إجراءات",
+    THEME_CLASSIC: "classic",
+    THEME_MODERN: "modern",
+    THEME_DEUTERANOPIA: "deuteranopia",
+    THEME_TRITANOPIA: "tritanopia",
+    THEME_ZELOS: "zelos",
+    THEME_HIGHCONTRAST: "high contrast",
+    THEME_DARK: "dark",
+    THEME_BLACKWHITE: "black and white",
   }
 };

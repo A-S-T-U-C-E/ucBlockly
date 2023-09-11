@@ -727,6 +727,10 @@ export const basic_toolbox: ToolboxConfiguration = {
       'name': 'CAT_FUNCTIONS',
       'categorystyle': 'procedure_category',
       'custom': 'PROCEDURE',
-    },
+    },{
+      'kind': 'search',
+      'name': 'Search',
+      'contents': [],
+    }
   ],
 }

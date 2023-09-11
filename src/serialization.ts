@@ -11,16 +11,16 @@
 
 import * as Blockly from 'blockly/core';
 
-const storageKey = 'mainWorkspace';
+const storageKey = 'mainWorkspace_blocks';
 
 /**
  * The function `workspaceSaveBlocks` saves the blocks in a Blockly workspace to the local storage.
  * @param workspace - The `workspace` parameter is an instance of the Blockly.Workspace class. It
  * represents the Blockly workspace that contains all the blocks and their connections.
  */
-export const workspaceSaveBlocks = (workspace: Blockly.Workspace) => {
+export const workspaceSaveBlocks = function(workspace: Blockly.Workspace) {
   const data = Blockly.serialization.workspaces.save(workspace);
-  window.localStorage?.setItem(storageKey, JSON.stringify(data));
+  window.sessionStorage?.setItem(storageKey, JSON.stringify(data));
 };
 
 /**
@@ -30,12 +30,71 @@ export const workspaceSaveBlocks = (workspace: Blockly.Workspace) => {
   * @returns If there is no data in the localStorage, then nothing is being returned.
   */
 
-export const workspaceLoadBlocks = (workspace: Blockly.Workspace) => {
-  const data = window.localStorage?.getItem(storageKey);
+export const workspaceLoadBlocks = function(workspace: Blockly.Workspace) {
+  const data = window.sessionStorage?.getItem(storageKey);
   if (!data) return;
 
   // Don't emit events during loading.
   Blockly.Events.disable();
-  Blockly.serialization.workspaces.load(JSON.parse(data), workspace);
+  Blockly.serialization.workspaces.load(JSON.parse(data), workspace, undefined);
   Blockly.Events.enable();
 };
+
+//blockly json serialization and merging 
+/* function remove_blocks(obj: Blockly.Block) {
+  const properties = Object.getOwnPropertyNames(obj)
+  for (const element of properties) {
+    if (element == 'block') {
+      // remove the block but keep the id
+      const id = obj['block'].id
+      delete obj['block']
+      obj.block = { "id": id }
+    } else if (typeof (obj[element]) == 'object') {
+      remove_blocks(obj[element])
+    }
+  }
+}
+
+function inject_blocks(obj: Blockly.Block, saved_blocks: Blockly.Block) {
+  const properties = Object.getOwnPropertyNames(obj)
+  for (const element of properties) {
+    if (element == 'block') {
+      obj.block = saved_blocks[obj.block.id]
+    } else if (typeof (obj[element]) == 'object') {
+      inject_blocks(obj[element], saved_blocks)
+    }
+  }
+}
+
+function save_mergeable(workspace) {
+  const blocks = workspace.getAllBlocks();
+  const save_blocks = {};
+  for (const element of blocks) {
+    const json_obj = Blockly.serialization.blocks.save(element, {
+      addCoordinates: true,
+      addInputBlocks: true,
+      addNextBlocks: true,
+      doFullSerialization: true
+    })
+
+    remove_blocks(json_obj)
+    save_blocks[element.id] = json_obj
+
+  }
+  save_blocks['top_blocks'] = workspace.getTopBlocks().map(block => block.id);
+
+
+  return save_blocks
+}
+
+function load_mergeable(saved_blocks, workspace) {
+  const keys = Object.keys(saved_blocks)
+  for (const element of keys) {
+    inject_blocks(saved_blocks[element], saved_blocks)
+  }
+  workspace.clear()
+  for (const element of saved_blocks['top_blocks']) {
+    const id = element;
+    Blockly.serialization.blocks.append(saved_blocks[id], workspace)
+  }
+} */

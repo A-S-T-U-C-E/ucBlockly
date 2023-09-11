@@ -7,7 +7,7 @@
  * Copyright 2023 ASTUCE (Sébastien Canet microcompany)
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
-export /**
+/**
  * The above type represents the configuration of a toolbox in TypeScript, which includes
  * various kinds of blocks and their properties.
  * @param kind - The "kind" property in the ToolboxConfiguration type represents the
@@ -15,7 +15,8 @@ export /**
  * item, such as "category", "block", or "separator".
  * @param contents - The `contents` property is an array that contains objects with the
  * following properties:
- */ type ToolboxConfiguration = {
+ */
+export type ToolboxConfiguration = {
     kind: string;
     contents: Array<{
         kind: string;

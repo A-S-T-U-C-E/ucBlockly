@@ -11,9 +11,26 @@
 
 import * as Blockly from 'blockly';
 import 'blockly/blocks';
+import '@blockly/toolbox-search';
+
+import { Backpack } from '@blockly/workspace-backpack';
+import { PositionedMinimap } from '@blockly/workspace-minimap';
+import { ZoomToFitControl } from '@blockly/zoom-to-fit';
+import { WorkspaceSearch } from '@blockly/plugin-workspace-search';
+import { ContentHighlight } from '@blockly/workspace-content-highlight';
+import { Modal } from '@blockly/plugin-modal';
+import { NavigationController } from '@blockly/keyboard-navigation';
+import { shadowBlockConversionChangeListener } from '@blockly/shadow-block-converter';
+import { ContinuousToolbox, ContinuousFlyout, ContinuousMetrics } from '@blockly/continuous-toolbox';
+//import { CrossTabCopyPaste } from '@blockly/plugin-cross-tab-copy-paste';
+//import { Multiselect, MultiselectBlockDragger } from '@mit-app-inventor/blockly-plugin-workspace-multiselect';
+//not sure it works fine...
+//import { ScrollOptions, ScrollBlockDragger, ScrollMetricsManager } from '@blockly/plugin-scroll-options';
+
 import { javascriptGenerator } from 'blockly/javascript';
 import { workspaceSaveBlocks, workspaceLoadBlocks } from './serialization';
 import { initLanguage } from './language';
+import { changeTheme, changeRenderer } from './options';
 import { ToolboxConfiguration } from './toolbox';
 
 import './css/index.css';
@@ -30,19 +47,59 @@ const div_code_generated: HTMLElement = document.getElementById('div_code_genera
 /* The above code is defining an interface called `BlocklyApplicationType` in TypeScript. This
 interface has the following properties: */
 export interface BlocklyApplicationType {
-  workspace?: Blockly.Workspace;
+  workspace: Blockly.Workspace;
   toolbox?: ToolboxConfiguration;
   LANGUAGE_NAME: Record<string, string>;
   LANGUAGE_RTL: string[];
+  WORKSPACE_OPTIONS: Record<string, unknown>;
 }
 /* The above code is defining a constant variable named `µcB` which is of type
 `BlocklyApplicationType`. It exports this variable for use in other modules. The
 `BlocklyApplicationType` is an interface or type that is not shown in the code snippet. The
 `LANGUAGE_NAME` property is an empty object, and the `LANGUAGE_RTL` property is an empty array. */
 export const µcB: BlocklyApplicationType = {
+  workspace: new Blockly.Workspace(),
   LANGUAGE_NAME: {},
-  LANGUAGE_RTL: []
-};
+  LANGUAGE_RTL: [],
+  WORKSPACE_OPTIONS: {},
+}
+
+/**
+ * Define all options for workspace.
+ */
+µcB.WORKSPACE_OPTIONS = {
+  grid:
+  {
+    spacing: 20,
+    length: 3,
+    colour: '#ccc',
+    snap: true
+  },
+  scrollbars: true,
+  /*plugins: {
+    'blockDragger': ScrollBlockDragger,
+    'metricsManager': ScrollMetricsManager,
+  },
+  move: {
+    wheel: true,
+  },*/
+  /* plugins: {
+    'toolbox': ContinuousToolbox,
+    'flyoutsVerticalToolbox': ContinuousFlyout,
+    'metricsManager': ContinuousMetrics,
+  }, */
+  zoom:
+  {
+    controls: true,
+    wheel: true,
+    startScale: 1.0,
+    maxScale: 6,
+    minScale: 0.1,
+    scaleSpeed: 1.2,
+    pinch: true
+  },
+  trashcan: true,
+}
 
 /**
  * Lookup for names of supported languages.  Keys should be in ISO 639 format.
@@ -54,6 +111,9 @@ export const µcB: BlocklyApplicationType = {
   'fr': 'Français'
 };
 
+// particular to this plugin
+const navigationpluginKeyboardNav = new NavigationController();
+let contentHighlight = new ContentHighlight();
 /**
  * List of RTL languages.
  */
@@ -66,30 +126,12 @@ export const µcB: BlocklyApplicationType = {
  * workspace should be displayed in right-to-left (RTL) mode. If `isRtl` is `true`, the workspace will
  * be displayed in RTL mode, otherwise it will be displayed in left-to-right (LTR) mode
  */
-export const genWorkspace = (isRtl: boolean): void => {
-  µcB.workspace = div_workspace_content_blockly && Blockly.inject(div_workspace_content_blockly, {
-    grid:
-    {
-      spacing: 20,
-      length: 3,
-      colour: '#ccc',
-      snap: true
-    },
-    rtl: isRtl,
-    scrollbars: true,
-    toolbox: µcB.toolbox!,
-    zoom:
-    {
-      controls: true,
-      wheel: true,
-      startScale: 1.0,
-      maxScale: 6,
-      minScale: 0.1,
-      scaleSpeed: 1.2,
-      pinch: true
-    },
-    trashcan: true,
-  });
+export const genWorkspace = (isRtl: boolean = true, renderNew: string = 'geras'): void => {
+  µcB.WORKSPACE_OPTIONS['renderer'] = renderNew;
+  µcB.WORKSPACE_OPTIONS['rtl'] = isRtl;
+  µcB.WORKSPACE_OPTIONS['toolbox'] = µcB.toolbox!;
+  µcB.workspace = div_workspace_content_blockly && Blockly.inject(div_workspace_content_blockly, µcB.WORKSPACE_OPTIONS);
+  contentHighlight = new ContentHighlight(µcB.workspace);
 }
 
 /**
@@ -277,6 +319,113 @@ export const addReplaceParamToUrl = (url: string, param: string, value: string):
 };
 
 /**
+ * The function `HTMLonChange` sets up event listeners for the `onchange` event of two HTML select
+ * elements and calls corresponding functions based on the selected values.
+ */
+const HTMLonChange = (): void => {
+  const themeMenu = <HTMLSelectElement>document.getElementById('themeMenu');
+  themeMenu.onchange = () => {
+    const theme = changeTheme(themeMenu.value);
+    return theme;
+  };
+  const rendererMenu = <HTMLSelectElement>document.getElementById('rendererMenu');
+  rendererMenu.onchange = () => {
+    const renderer = changeRenderer(rendererMenu.value);
+    return renderer;
+  };
+  const pluginMinimapCheck = <HTMLInputElement>document.getElementById('pluginMinimap');
+  pluginMinimapCheck.onchange = () => {
+    const isThereMinimap: HTMLElement = document.getElementsByClassName('blockly-minimap')[0] as HTMLElement;
+    isThereMinimap.style.visibility = pluginMinimapCheck.checked ? "visible" : "hidden";
+    return pluginMinimapCheck.checked;
+  };
+  const pluginKeyboardNavCheck = <HTMLInputElement>document.getElementById('pluginKeyboardNav');
+  pluginKeyboardNavCheck.onchange = () => {
+    pluginKeyboardNavCheck.checked ? navigationpluginKeyboardNav.enable(µcB.workspace) : navigationpluginKeyboardNav.disable(µcB.workspace);
+    return pluginKeyboardNavCheck.checked;
+  };
+  const pluginHighlightCheck = <HTMLInputElement>document.getElementById('pluginHighlight');
+  pluginHighlightCheck.onchange = () => {
+    pluginHighlightCheck.checked ? contentHighlight.init() : contentHighlight.dispose();
+    return pluginHighlightCheck.checked;
+  };
+}
+
+// The function `initWorkspace` build workspace by calling sub constructor
+const initWorkspace = (): void => {
+  changeTheme();
+  // Define resizable flex views: workspace, code, console.
+  window.addEventListener('resize', µcB_workspaceOnResize, false);
+  µcB_workspaceOnResize();
+  addFlexResizerEvents(µcB.workspace as Blockly.WorkspaceSvg);
+  // Intial load of workspace with previous state
+  console.log(window.sessionStorage.getItem('mainWorkspace_blocks'))
+  workspaceLoadBlocks(µcB.workspace);
+  // Add different listeners related to Blockly workspace
+  workspaceListeners(µcB.workspace as Blockly.WorkspaceSvg);
+}
+
+// The function `rebootWorkspace` build workspace by calling sub constructor
+export const rebootWorkspace = (): void => {
+  workspaceSaveBlocks(µcB.workspace);
+  setupWorkspacePlugins(µcB.workspace, true);
+  µcB.workspace.dispose();
+  µcB.workspace = Blockly.inject(div_workspace_content_blockly, µcB.WORKSPACE_OPTIONS);
+  setupWorkspacePlugins(µcB.workspace);
+  console.log(window.sessionStorage.getItem('mainWorkspace_blocks'))
+  workspaceLoadBlocks(µcB.workspace);
+}
+
+// The function `setupWorkspacePlugins` sets up all plugins added in workspace
+const setupWorkspacePlugins = (workspace: Blockly.Workspace, disposePlugin: boolean = false): void => {
+  disposePlugin ? console.log('destroy plugins') : console.log('init plugins')
+  const backpack = new Backpack(workspace as Blockly.WorkspaceSvg);
+  disposePlugin ? backpack.dispose() : backpack.init();
+  disposePlugin ? console.log('destroy backpack') : console.log('init backpack')
+  const minimap = new PositionedMinimap(workspace);
+  disposePlugin ? minimap.dispose() : minimap.init();
+  disposePlugin ? console.log('destroy minimap') : console.log('init minimap')
+  const zoomToFit = new ZoomToFitControl(workspace);
+  disposePlugin ? zoomToFit.dispose() : zoomToFit.init();
+  disposePlugin ? console.log('destroy zoomToFit') : console.log('init zoomToFit')
+  const workspaceSearch = new WorkspaceSearch(workspace);
+  disposePlugin ? workspaceSearch.dispose() : workspaceSearch.init();
+  disposePlugin ? console.log('destroy workspaceSearch') : console.log('init workspaceSearch')
+  const pluginHighlightCheck = <HTMLInputElement>document.getElementById('pluginHighlight');
+  if (pluginHighlightCheck.checked)
+    disposePlugin ? contentHighlight.dispose() : contentHighlight.init();
+  disposePlugin ? console.log('destroy contentHighlight') : console.log('init contentHighlight')
+  const modal = new Modal(workspace);
+  disposePlugin ? modal.dispose() : modal.init();
+  disposePlugin ? console.log('destroy modal') : console.log('init modal')
+  //particular to this plugin
+  if (!disposePlugin) {
+    navigationpluginKeyboardNav.init();
+    navigationpluginKeyboardNav.addWorkspace(workspace);
+  } else {
+    navigationpluginKeyboardNav.removeWorkspace(workspace);
+    navigationpluginKeyboardNav.dispose();
+  }
+  disposePlugin ? console.log('destroy navigationpluginKeyboardNav') : console.log('init navigationpluginKeyboardNav')
+  µcB.workspace.addChangeListener(shadowBlockConversionChangeListener);
+  /*const plugin = new ScrollOptions(µcB.workspace);
+  plugin.init();*/
+
+  /* it seems there's conflict with nav keyboard copy function
+  const options = {
+    contextMenu: true,
+    shortcut: true
+  } 
+  const crossTabCopyPastePlugin = new CrossTabCopyPaste();
+  crossTabCopyPastePlugin.init(options);*/
+}
+
+/**
+ * Collection of functions ordered by priority: 1.DOM - 2.inside DOM - 3.inside window
+ */
+
+
+/**
  * The `DomIsLoaded` function waits for the DOM to be ready and then executes a callback function.
  * @param callback - The parameter "callback" is a callback function that will be executed when the DOM
  * is ready.
@@ -291,22 +440,8 @@ const DomIsLoaded = (callback: () => void): void => {
 // The `DomIsLoaded` function prepares everything needed by structure of DOM.
 DomIsLoaded((): void => {
   initLanguage(µcB);
-  // Define resizable flex views: workspace, code, console.
-  window.addEventListener('resize', µcB_workspaceOnResize, false);
-  µcB_workspaceOnResize();
-  addFlexResizerEvents(µcB.workspace as Blockly.WorkspaceSvg);
-  // Initialize plugin.
-
-
-
-
-  // Intial load of workspace with previous state
-  workspaceLoadBlocks(µcB.workspace as Blockly.WorkspaceSvg);
-
-  // Add different listeners related to Blockly workspace
-  workspaceListeners(µcB.workspace as Blockly.WorkspaceSvg);
+  initWorkspace();
 });
-
 /* The `window.onload` event is triggered when the entire page has finished loading, including all
 resources such as images and scripts. */
 window.onload = (): void => {
@@ -319,12 +454,15 @@ window.onload = (): void => {
   if (window.sessionStorage.getItem('flex_container_up_right')) tempComponent.style.flexGrow = window.sessionStorage.getItem('flex_container_up_right')!;
   tempComponent = document.getElementById("flex_container_bottom")!;
   if (window.sessionStorage.getItem('flex_container_bottom')) tempComponent.style.flexGrow = window.sessionStorage.getItem('flex_container_bottom')!;
+  setupWorkspacePlugins(µcB.workspace);
+  HTMLonChange();
   µcB_workspaceOnResize();
+  console.log(window.sessionStorage.getItem('mainWorkspace_blocks'))
+  workspaceLoadBlocks(µcB.workspace);
 };
-
 /* The above code is a TypeScript code snippet that sets the `onbeforeunload` event handler for the
 window object. This event is triggered when the user is about to leave the current page, and save windows position in UI. */
-window.onbeforeunload = function () {
+window.onbeforeunload = (): void => {
   window.sessionStorage?.setItem('flex_container_up', document.getElementById("flex_container_up")!.style.flex);
   window.sessionStorage?.setItem('flex_container_up_left', document.getElementById(`flex_container_up_left`)!.style.flex);
   window.sessionStorage?.setItem('flex_container_up_right', document.getElementById(`flex_container_up_right`)!.style.flexGrow);

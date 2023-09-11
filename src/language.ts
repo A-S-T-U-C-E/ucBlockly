@@ -73,7 +73,7 @@ const µcB_changeLanguage = (): void => {
   Blockly.setLocale(languagesMapBlockly[newLang]);
   µcB_changeLanguageToolbox(newLang);
   genWorkspace(rtl);
-  workspaceLoadBlocks(µcB.workspace!);
+  workspaceLoadBlocks(µcB.workspace);
   (µcB.workspace as Blockly.WorkspaceSvg).scrollCenter();
 };
 
