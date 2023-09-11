@@ -18,12 +18,6 @@
 
 /**
  * @license
- * Copyright 2022 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-
-/**
- * @license
  * Copyright 2023 ASTUCE (Sébastien Canet microcompany)
  * SPDX-License-Identifier: GPL-3.0-or-later
  */

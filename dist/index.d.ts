@@ -9,6 +9,7 @@
  */
 import * as Blockly from 'blockly';
 import 'blockly/blocks';
+import '@blockly/toolbox-search';
 import { ToolboxConfiguration } from './toolbox';
 import './css/index.css';
 import './css/µcBlockly.css';
@@ -16,10 +17,11 @@ import './css/µcBlockly.css';
  * Create an empty application.
  */
 export interface BlocklyApplicationType {
-    workspace?: Blockly.Workspace;
+    workspace: Blockly.Workspace;
     toolbox?: ToolboxConfiguration;
     LANGUAGE_NAME: Record<string, string>;
     LANGUAGE_RTL: string[];
+    WORKSPACE_OPTIONS: Record<string, unknown>;
 }
 export declare const µcB: BlocklyApplicationType;
 /**
@@ -29,7 +31,7 @@ export declare const µcB: BlocklyApplicationType;
  * workspace should be displayed in right-to-left (RTL) mode. If `isRtl` is `true`, the workspace will
  * be displayed in RTL mode, otherwise it will be displayed in left-to-right (LTR) mode
  */
-export declare const genWorkspace: (isRtl: boolean) => void;
+export declare const genWorkspace: (isRtl?: boolean, renderNew?: string) => void;
 /**
  * The function adds or replaces a parameter and its value in a given URL.
  * @param url - The `url` parameter is a string representing the URL to which the parameter
@@ -42,4 +44,5 @@ export declare const genWorkspace: (isRtl: boolean) => void;
  * with the specified `param` and `value` added or replaced.
  */
 export declare const addReplaceParamToUrl: (url: string, param: string, value: string) => string;
+export declare const rebootWorkspace: () => void;
 //# sourceMappingURL=index.d.ts.map
