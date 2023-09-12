@@ -1,7 +1,7 @@
 /**
  * @packageDocumentation Webpack configuration file.
- * Author Blockly Team (https://github.com/google/blockly-samples/tree/master/examples/sample-app-ts)
- * Author scanet@libreducc (Sébastien Canet)
+ * @author Blockly Team (https://github.com/google/blockly-samples/tree/master/examples/sample-app-ts)
+ * @author scanet@libreducc (Sébastien Canet)
  */
 
 const path = require('path');

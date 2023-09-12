@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation General script file for index
- * Author scanet\@libreducc (Sébastien Canet)
+ * @author scanet\@libreducc (Sébastien Canet)
  */
 
 /**
@@ -13,6 +13,14 @@ import * as Blockly from 'blockly';
 import 'blockly/blocks';
 import '@blockly/toolbox-search';
 
+import { javascriptGenerator } from 'blockly/javascript';
+import { workspaceSaveBlocks, workspaceLoadBlocks } from './serialization';
+import { initLanguage, µcB_changeLanguage } from './language';
+import { languagesMapBlockly } from './languages/languageMap';
+import { changeTheme, changeRenderer } from './options';
+import { basic_toolbox, ToolboxConfiguration } from './toolbox';
+
+//plugins
 import { Backpack } from '@blockly/workspace-backpack';
 import { PositionedMinimap } from '@blockly/workspace-minimap';
 import { ZoomToFitControl } from '@blockly/zoom-to-fit';
@@ -27,11 +35,6 @@ import { ContinuousToolbox, ContinuousFlyout, ContinuousMetrics } from '@blockly
 //not sure it works fine...
 //import { ScrollOptions, ScrollBlockDragger, ScrollMetricsManager } from '@blockly/plugin-scroll-options';
 
-import { javascriptGenerator } from 'blockly/javascript';
-import { workspaceSaveBlocks, workspaceLoadBlocks } from './serialization';
-import { initLanguage } from './language';
-import { changeTheme, changeRenderer } from './options';
-import { ToolboxConfiguration } from './toolbox';
 
 import './css/index.css';
 import './css/µcBlockly.css';
@@ -48,7 +51,7 @@ const div_code_generated: HTMLElement = document.getElementById('div_code_genera
 interface has the following properties: */
 export interface BlocklyApplicationType {
   workspace: Blockly.Workspace;
-  toolbox?: ToolboxConfiguration;
+  toolbox: ToolboxConfiguration;
   LANGUAGE_NAME: Record<string, string>;
   LANGUAGE_RTL: string[];
   WORKSPACE_OPTIONS: Record<string, unknown>;
@@ -59,6 +62,7 @@ export interface BlocklyApplicationType {
 `LANGUAGE_NAME` property is an empty object, and the `LANGUAGE_RTL` property is an empty array. */
 export const µcB: BlocklyApplicationType = {
   workspace: new Blockly.Workspace(),
+  toolbox: basic_toolbox,
   LANGUAGE_NAME: {},
   LANGUAGE_RTL: [],
   WORKSPACE_OPTIONS: {},
@@ -111,26 +115,30 @@ export const µcB: BlocklyApplicationType = {
   'fr': 'Français'
 };
 
+/**
+ * List of RTL languages.
+ */
+µcB.LANGUAGE_RTL = ['ar', 'fa', 'he', 'lki'];
+
+
 // particular to this plugins
 const navigationpluginKeyboardNav = new NavigationController();
 let contentHighlight = new ContentHighlight();
 let minimap = new PositionedMinimap();
 
 /**
- * List of RTL languages.
+ * The function `µcB_workspaceInject` generates a Blockly workspace with specified options and assigns it to a
+ * variable.
+ * @param isLangRtl - A boolean value indicating whether the workspace should be rendered
+ * in right-to-left mode. If true, the workspace will be rendered in right-to-left mode. If false, it
+ * will be rendered in left-to-right mode. The default value is true.
+ * @param renderNew - The `renderNew` parameter is a string that specifies the
+ * renderer to be used for the Blockly workspace. It determines how the blocks and workspace will be
+ * visually rendered.
  */
-µcB.LANGUAGE_RTL = ['ar', 'fa', 'he', 'lki'];
-
-/**
- * The function `genWorkspace` creates a Blockly workspace with specified options and injects it into a
- * specified HTML element.
- * @param isRtl - The `isRtl` parameter is a boolean value that determines whether the
- * workspace should be displayed in right-to-left (RTL) mode. If `isRtl` is `true`, the workspace will
- * be displayed in RTL mode, otherwise it will be displayed in left-to-right (LTR) mode
- */
-export const genWorkspace = (isRtl: boolean = true, renderNew: string = 'geras'): void => {
+export const µcB_workspaceInject = (isLangRtl: boolean = true, renderNew: string = 'geras'): void => {
   µcB.WORKSPACE_OPTIONS['renderer'] = renderNew;
-  µcB.WORKSPACE_OPTIONS['rtl'] = isRtl;
+  µcB.WORKSPACE_OPTIONS['rtl'] = isLangRtl;
   µcB.WORKSPACE_OPTIONS['toolbox'] = µcB.toolbox!;
   µcB.workspace = div_workspace_content_blockly && Blockly.inject(div_workspace_content_blockly, µcB.WORKSPACE_OPTIONS);
   contentHighlight = new ContentHighlight(µcB.workspace);
@@ -240,14 +248,14 @@ const µcB_workspaceManageResize = (mouseDown: Event, sizeProp: string, posProp:
 }
 
 /**
- * The function `addFlexResizerEvents` adds event listeners to the body of the document to handle mouse
+ * The function `HTMLaddFlexResizerEvents` adds event listeners to the body of the document to handle mouse
  * events on flex resizer elements and resize the Blockly workspace accordingly.
  * @param workspace - The `workspace` parameter is of type `Blockly.WorkspaceSvg`. It represents the
  * Blockly workspace on which the resizer events will be added.
  * @returns Nothing is being returned. The function has a return type of `void`, which means it does
  * not return any value.
  */
-const addFlexResizerEvents = (workspace: Blockly.WorkspaceSvg): void => {
+const HTMLaddFlexResizerEvents = (workspace: Blockly.WorkspaceSvg): void => {
   document.body.addEventListener("mousedown", function (mouseDown: Event) {
     const html = document.querySelector('html') as HTMLElement;
     const mouseTarget = mouseDown.target as HTMLElement;
@@ -300,31 +308,14 @@ const workspaceListeners = (workspace: Blockly.WorkspaceSvg): void => {
 }
 
 /**
- * The function adds or replaces a parameter and its value in a given URL.
- * @param url - The `url` parameter is a string representing the URL to which the parameter
- * needs to be added or replaced.
- * @param param - The `param` parameter is a string that represents the name of the query
- * parameter that you want to add or replace in the URL.
- * @param value - The `value` parameter is a string representing the value that you want to
- * add or replace for the specified parameter in the URL.
- * @returns The function `addReplaceParamToUrl` returns a modified version of the input `url` string
- * with the specified `param` and `value` added or replaced.
- */
-export const addReplaceParamToUrl = (url: string, param: string, value: string): string => {
-  const re = new RegExp("([?&])" + param + "=.*?(&|$)", "i");
-  const separator = url.indexOf('?') !== -1 ? "&" : "?";
-  if (re.exec(url)) {
-    return url.replace(re, '$1' + param + "=" + value + '$2');
-  } else {
-    return url + separator + param + "=" + value;
-  }
-};
-
-/**
  * The function `HTMLonChange` sets up event listeners for the `onchange` event of two HTML select
  * elements and calls corresponding functions based on the selected values.
  */
 const HTMLonChange = (): void => {
+  const dropdownMenu = <HTMLSelectElement>document.getElementById('languageMenu');
+  dropdownMenu.onchange = () => {
+    µcB_changeLanguage();
+  };
   const themeMenu = <HTMLSelectElement>document.getElementById('themeMenu');
   themeMenu.onchange = () => {
     const theme = changeTheme(themeMenu.value);
@@ -353,34 +344,53 @@ const HTMLonChange = (): void => {
   };
 }
 
-// The function `initWorkspace` build workspace by calling sub constructor
-const initWorkspace = (): void => {
+// The function `workspaceInit` build workspace by calling sub constructor
+const workspaceInit = (): void => {
   changeTheme();
   // Define resizable flex views: workspace, code, console.
   window.addEventListener('resize', µcB_workspaceOnResize, false);
   µcB_workspaceOnResize();
-  addFlexResizerEvents(µcB.workspace as Blockly.WorkspaceSvg);
+  HTMLaddFlexResizerEvents(µcB.workspace as Blockly.WorkspaceSvg);
   // Intial load of workspace with previous state
-  console.log(window.sessionStorage.getItem('mainWorkspace_blocks'))
   workspaceLoadBlocks(µcB.workspace);
   // Add different listeners related to Blockly workspace
   workspaceListeners(µcB.workspace as Blockly.WorkspaceSvg);
 }
 
-// The function `rebootWorkspace` build workspace by calling sub constructor
-export const rebootWorkspace = (): void => {
+/**
+ * The `workspaceReboot` function saves the current workspace, sets up workspace plugins, disposes the
+ * current workspace, changes the language based on the selected option in the dropdown menu, injects a
+ * new workspace, logs the main workspace blocks from the session storage, sets up workspace plugins
+ * again, and loads the saved blocks into the new workspace.
+ */
+export const workspaceReboot = (): void => {
   workspaceSaveBlocks(µcB.workspace);
-  setupWorkspacePlugins(µcB.workspace, true);
-  µcB.workspace.dispose();
+  workspaceSetupPlugins(µcB.workspace, true);
+  µcB.workspace.dispose(); const dropdownMenu: HTMLSelectElement = document.querySelector('#languageMenu')!;
+  const newLang: string = dropdownMenu.options[dropdownMenu.selectedIndex].value;
+  Blockly.setLocale(languagesMapBlockly[newLang]);
   µcB.workspace = Blockly.inject(div_workspace_content_blockly, µcB.WORKSPACE_OPTIONS);
   console.log(window.sessionStorage.getItem('mainWorkspace_blocks'))
-  setupWorkspacePlugins(µcB.workspace, false);
+  workspaceSetupPlugins(µcB.workspace, false);
   workspaceLoadBlocks(µcB.workspace);
 }
 
-// The function `setupWorkspacePlugins` sets up all plugins added in workspace
-const setupWorkspacePlugins = (workspace: Blockly.Workspace, disposePlugin: boolean = false): void => {
-  const backpack = new Backpack(workspace as Blockly.WorkspaceSvg);
+// The function `workspaceSetupPlugins` sets up all plugins added in workspace
+export const workspaceSetupPlugins = (workspace: Blockly.Workspace, disposePlugin: boolean = false): void => {
+  const backpackOptions = {
+    allowEmptyBackpackOpen: true,
+    useFilledBackpackImage: true,
+    skipSerializerRegistration: false,
+    contextMenu: {
+      emptyBackpack: true,
+      removeFromBackpack: true,
+      copyToBackpack: true,
+      copyAllToBackpack: true,
+      pasteAllToBackpack: true,
+      disablePreconditionChecks: true,
+    },
+  };
+  const backpack = new Backpack(workspace as Blockly.WorkspaceSvg, backpackOptions);
   disposePlugin ? backpack.dispose() : backpack.init();
   const zoomToFit = new ZoomToFitControl(workspace);
   disposePlugin ? zoomToFit.dispose() : zoomToFit.init();
@@ -439,7 +449,8 @@ const DomIsLoaded = (callback: () => void): void => {
 // The `DomIsLoaded` function prepares everything needed by structure of DOM.
 DomIsLoaded((): void => {
   initLanguage(µcB);
-  initWorkspace();
+  µcB_changeLanguage();
+  workspaceInit();
 });
 /* The `window.onload` event is triggered when the entire page has finished loading, including all
 resources such as images and scripts. */
@@ -453,7 +464,7 @@ window.onload = (): void => {
   if (window.sessionStorage.getItem('flex_container_up_right')) tempComponent.style.flexGrow = window.sessionStorage.getItem('flex_container_up_right')!;
   tempComponent = document.getElementById("flex_container_bottom")!;
   if (window.sessionStorage.getItem('flex_container_bottom')) tempComponent.style.flexGrow = window.sessionStorage.getItem('flex_container_bottom')!;
-  setupWorkspacePlugins(µcB.workspace, false);
+  workspaceSetupPlugins(µcB.workspace, false);
   HTMLonChange();
   µcB_workspaceOnResize();
   console.log(window.sessionStorage.getItem('mainWorkspace_blocks'))

@@ -1,5 +1,5 @@
 import * as Blockly from 'blockly';
-import { µcB, rebootWorkspace } from './index';
+import { µcB, workspaceReboot } from './index';
 
 import DarkTheme from '@blockly/theme-dark';
 import ModernTheme from '@blockly/theme-modern';
@@ -35,7 +35,13 @@ export function changeTheme(themeChoice: string = 'classic') {
   }
 }
 
+/**
+ * The function `changeRenderer` updates the renderer option in the `µcB.WORKSPACE_OPTIONS` object and
+ * then reboots the workspace.
+ * @param renderNew - The `renderNew` parameter is a string that represents the value of the
+ * selected option in the `rendererMenu` HTML select element.
+ */
 export function changeRenderer(renderNew: string = (document.getElementById('rendererMenu') as HTMLSelectElement).value){  
   µcB.WORKSPACE_OPTIONS['renderer'] = renderNew;
-  rebootWorkspace();
+  workspaceReboot();
 }

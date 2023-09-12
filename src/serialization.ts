@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation Script file to save and load blocks on workspace
- * Author scanet\@libreducc (Sébastien Canet)
+ * @author scanet\@libreducc (Sébastien Canet)
  */
 
 /**
@@ -11,7 +11,7 @@
 
 import * as Blockly from 'blockly/core';
 
-const storageKey = 'mainWorkspace_blocks';
+const storageKeyWrokspaceBlocks = 'mainWorkspace_blocks';
 
 /**
  * The function `workspaceSaveBlocks` saves the blocks in a Blockly workspace to the local storage.
@@ -20,18 +20,18 @@ const storageKey = 'mainWorkspace_blocks';
  */
 export const workspaceSaveBlocks = function(workspace: Blockly.Workspace) {
   const data = Blockly.serialization.workspaces.save(workspace);
-  window.sessionStorage?.setItem(storageKey, JSON.stringify(data));
+  window.sessionStorage?.setItem(storageKeyWrokspaceBlocks, JSON.stringify(data));
 };
 
 /**
-  * The function `workspaceLoadBlocks` loads blocks from local storage into a Blockly workspace.
-  * @param workspace - The "workspace" parameter is an instance of the Blockly.Workspace class. It
-  * represents the Blockly workspace where blocks are loaded.
-  * @returns If there is no data in the localStorage, then nothing is being returned.
-  */
-
+ * The function loads blocks into a Blockly workspace from session storage.
+ * @param workspace - The `workspace` parameter is an instance of the `Blockly.Workspace` class. It
+ * represents the Blockly workspace where blocks are loaded.
+ * @returns If the `data` variable is falsy (null, undefined, empty string), then nothing is being
+ * returned.
+ */
 export const workspaceLoadBlocks = function(workspace: Blockly.Workspace) {
-  const data = window.sessionStorage?.getItem(storageKey);
+  const data = window.sessionStorage?.getItem(storageKeyWrokspaceBlocks);
   if (!data) return;
 
   // Don't emit events during loading.

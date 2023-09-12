@@ -25,5 +25,6 @@ export const frLang: LanguageMap = {
     THEME_HIGHCONTRAST: "contraste élevé",
     THEME_DARK: "sombre",
     THEME_BLACKWHITE: "noir et blanc",
+    EMPTY_BACKPACK: "vider le sac à dos",
   }
 };

@@ -9,11 +9,15 @@
     "paths": {
         "*": ["types/*"]
     },
+    "strict": true,
     "target": "ES2022",
+    "tsdoc": {
+      "esModuleInterop": true,
+      "supportedTags": ["author"]
+    },
     "types": [
       "node"
     ],
-    "strict": true,
   },
   "typedocOptions": {
       "entryPoints": ["src/index.ts"],

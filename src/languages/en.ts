@@ -25,5 +25,6 @@ export const enLang: LanguageMap = {
     THEME_HIGHCONTRAST: "high contrast",
     THEME_DARK: "dark",
     THEME_BLACKWHITE: "black and white",
+    EMPTY_BACKPACK: "empty backpack",
   }
 };

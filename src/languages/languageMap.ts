@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation Define type and table of translated definition
- * Author scanet\@libreducc (Sébastien Canet)
+ * @author scanet\@libreducc (Sébastien Canet)
  */
 
 /**
@@ -76,4 +76,6 @@ export interface LanguageItem {
   THEME_HIGHCONTRAST: string;
   THEME_DARK: string;
   THEME_BLACKWHITE: string;
+  // plugins Blockly
+  EMPTY_BACKPACK : string;
 }
