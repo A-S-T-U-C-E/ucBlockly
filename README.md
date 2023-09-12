@@ -9,3 +9,5 @@
 
 ---
 <p align = 'center'><a href="https://github.com/A-S-T-U-C-E/ucBlockly/pulls">Thanks for helping</a></p>
+
+![compilation status](https://github.com//A-S-T-U-C-E/ucBlockly/actions/workflows/node.js.yml/badge.svg?event=push)
