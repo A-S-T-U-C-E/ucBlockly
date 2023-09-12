@@ -1,5 +1,6 @@
 # µcBlockly
-  Programm microcontrollers thanks to Blockly
+  Program microcontrollers thanks to Blockly
+![compilation status](https://github.com//A-S-T-U-C-E/ucBlockly/actions/workflows/node.js.yml/badge.svg?event=push)
 
 <div align = 'center'>
   <img src = 'https://developers.google.com/static/blockly/images/logos/logo_standard.svg' width = '50%'>
@@ -9,5 +10,3 @@
 
 ---
 <p align = 'center'><a href="https://github.com/A-S-T-U-C-E/ucBlockly/pulls">Thanks for helping</a></p>
-
-![compilation status](https://github.com//A-S-T-U-C-E/ucBlockly/actions/workflows/node.js.yml/badge.svg?event=push)
