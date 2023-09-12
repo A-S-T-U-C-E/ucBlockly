@@ -248,14 +248,14 @@ const µcB_workspaceManageResize = (mouseDown: Event, sizeProp: string, posProp:
 }
 
 /**
- * The function `HTMLaddFlexResizerEvents` adds event listeners to the body of the document to handle mouse
+ * The function `HTML_addFlexResizerEvents` adds event listeners to the body of the document to handle mouse
  * events on flex resizer elements and resize the Blockly workspace accordingly.
  * @param workspace - The `workspace` parameter is of type `Blockly.WorkspaceSvg`. It represents the
  * Blockly workspace on which the resizer events will be added.
  * @returns Nothing is being returned. The function has a return type of `void`, which means it does
  * not return any value.
  */
-const HTMLaddFlexResizerEvents = (workspace: Blockly.WorkspaceSvg): void => {
+const HTML_addFlexResizerEvents = (workspace: Blockly.WorkspaceSvg): void => {
   document.body.addEventListener("mousedown", function (mouseDown: Event) {
     const html = document.querySelector('html') as HTMLElement;
     const mouseTarget = mouseDown.target as HTMLElement;
@@ -308,13 +308,13 @@ const workspaceListeners = (workspace: Blockly.WorkspaceSvg): void => {
 }
 
 /**
- * The function `HTMLonChange` sets up event listeners for the `onchange` event of two HTML select
+ * The function `HTML_onChange` sets up event listeners for the `onchange` event of two HTML select
  * elements and calls corresponding functions based on the selected values.
  */
-const HTMLonChange = (): void => {
+const HTML_onChange = (): void => {
   const dropdownMenu = <HTMLSelectElement>document.getElementById('languageMenu');
   dropdownMenu.onchange = () => {
-    µcB_changeLanguage();
+    µcB_changeLanguage(true);
   };
   const themeMenu = <HTMLSelectElement>document.getElementById('themeMenu');
   themeMenu.onchange = () => {
@@ -344,13 +344,13 @@ const HTMLonChange = (): void => {
   };
 }
 
-// The function `workspaceInit` build workspace by calling sub constructor
-const workspaceInit = (): void => {
+// The function `µcB_workspaceInit` build workspace by calling sub constructor
+const µcB_workspaceInit = (): void => {
   changeTheme();
   // Define resizable flex views: workspace, code, console.
   window.addEventListener('resize', µcB_workspaceOnResize, false);
   µcB_workspaceOnResize();
-  HTMLaddFlexResizerEvents(µcB.workspace as Blockly.WorkspaceSvg);
+  HTML_addFlexResizerEvents(µcB.workspace as Blockly.WorkspaceSvg);
   // Intial load of workspace with previous state
   workspaceLoadBlocks(µcB.workspace);
   // Add different listeners related to Blockly workspace
@@ -449,8 +449,8 @@ const DomIsLoaded = (callback: () => void): void => {
 // The `DomIsLoaded` function prepares everything needed by structure of DOM.
 DomIsLoaded((): void => {
   initLanguage(µcB);
-  µcB_changeLanguage();
-  workspaceInit();
+  µcB_changeLanguage(false);
+  µcB_workspaceInit();
 });
 /* The `window.onload` event is triggered when the entire page has finished loading, including all
 resources such as images and scripts. */
@@ -465,7 +465,7 @@ window.onload = (): void => {
   tempComponent = document.getElementById("flex_container_bottom")!;
   if (window.sessionStorage.getItem('flex_container_bottom')) tempComponent.style.flexGrow = window.sessionStorage.getItem('flex_container_bottom')!;
   workspaceSetupPlugins(µcB.workspace, false);
-  HTMLonChange();
+  HTML_onChange();
   µcB_workspaceOnResize();
   console.log(window.sessionStorage.getItem('mainWorkspace_blocks'))
   workspaceLoadBlocks(µcB.workspace);

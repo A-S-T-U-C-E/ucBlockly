@@ -17,9 +17,6 @@ import { addReplaceParamToUrl, getStringParamFromUrl } from './tools';
 import { workspaceSaveBlocks, workspaceLoadBlocks } from './serialization';
 import { languagesMap, languagesMapBlockly, LanguageItem } from './languages/languageMap';
 
-const dropdownMenu: HTMLSelectElement = document.getElementById('languageMenu') as HTMLSelectElement;
-
-
 /**
  * The function `getLangParamFromUrl` retrieves the language parameter from a URL and returns it,
  * defaulting to English if the parameter is not found or is invalid.
@@ -28,10 +25,10 @@ const dropdownMenu: HTMLSelectElement = document.getElementById('languageMenu') 
  * @returns the value of the `lang` variable, which is a string representing the language parameter
  * obtained from the URL.
  */
-const getLangParamFromUrl = (blocklyObject: BlocklyApplicationType): string => {
+const getLangParamFromUrl = (): string => {
   let lang: string;
   lang = getStringParamFromUrl('lang', '');
-  if (blocklyObject.LANGUAGE_NAME[lang] === undefined || !lang) {
+  if (µcB.LANGUAGE_NAME[lang] === undefined || !lang) {
     // Default to English.
     lang = 'en';
   }
@@ -39,6 +36,7 @@ const getLangParamFromUrl = (blocklyObject: BlocklyApplicationType): string => {
 };
 
 const getLangParamFromDropdown = (): string => {
+  const dropdownMenu: HTMLSelectElement = document.getElementById('languageMenu') as HTMLSelectElement;
   const newLang: string = dropdownMenu.options[dropdownMenu.selectedIndex].value;
   window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "lang", newLang));
   return newLang;
@@ -52,23 +50,21 @@ const getLangParamFromDropdown = (): string => {
  * @returns a boolean value.
  */
 const isLangRtl = (blocklyObject: BlocklyApplicationType): boolean => {
-  return blocklyObject.LANGUAGE_RTL.indexOf(getLangParamFromUrl(µcB)) !== -1;
+  return blocklyObject.LANGUAGE_RTL.indexOf(getLangParamFromUrl()) !== -1;
 };
 
 /**
- * The function `µcB_changeLanguage` is used to change the language of a coding environment and update
- * the HTML accordingly.
+ * The function `µcB_changeLanguage` changes the language and direction of the HTML, saves the
+ * workspace blocks, disposes the workspace, sets the Blockly locale, changes the language of the
+ * toolbox, injects the workspace, loads the saved blocks, and centers the workspace.
  */
-export const µcB_changeLanguage = (): void => {
-  const newLang = getLangParamFromDropdown();
+export const µcB_changeLanguage = (menuOrUrl: boolean): void => {
+  const newLang: string = menuOrUrl ? getLangParamFromDropdown() : getLangParamFromUrl();
   // Set the HTML's language and direction.
   const rtl: boolean = isLangRtl(µcB);
-  HTMLchangeLanguage(newLang);
-  // verify if exist, else it's initialisation
-  if (µcB.workspace) {
-    workspaceSaveBlocks(µcB.workspace);
-    µcB.workspace.dispose();
-  }
+  HTML_changeLanguage(newLang);
+  workspaceSaveBlocks(µcB.workspace);
+  µcB.workspace.dispose();
   Blockly.setLocale(languagesMapBlockly[newLang]);
   µcB_changeLanguageToolbox(newLang);
   µcB_workspaceInject(rtl);
@@ -77,12 +73,12 @@ export const µcB_changeLanguage = (): void => {
 };
 
 /**
- * The function `HTMLchangeLanguage` updates the text content of elements with the class "lang"
+ * The function `HTML_changeLanguage` updates the text content of elements with the class "lang"
  * based on the selected language.
  * @param newLang - The `newLang` parameter is a string that represents the new language that
  * the user wants to change to.
  */
-const HTMLchangeLanguage = (newLang: string): void => {
+const HTML_changeLanguage = (newLang: string): void => {
   const langElements = document.querySelectorAll('.lang');
   const selectedLangItem = languagesMap[newLang];
   if (selectedLangItem) {
@@ -125,8 +121,8 @@ const µcB_changeLanguageToolbox = (newLang: string): void => {
       });
     }
   }
-  toolboxCopy.forEach((content: Category) => {
-    replaceCategoryName(content);
+  toolboxCopy.forEach((category: Category) => {
+    replaceCategoryName(category);
   });
   µcB.toolbox.contents = toolboxCopy;
 }
@@ -171,7 +167,7 @@ export const initLanguage = (blocklyObject: BlocklyApplicationType): void => {
     const tuple = element;
     const lang = tuple[tuple.length - 1];
     const option = new Option(tuple[0], lang);
-    if (lang === getLangParamFromUrl(blocklyObject)) {
+    if (lang === getLangParamFromUrl()) {
       option.selected = true;
     }
     languageMenu.options.add(option);
