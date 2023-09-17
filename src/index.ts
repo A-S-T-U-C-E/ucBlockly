@@ -15,10 +15,10 @@ import '@blockly/toolbox-search';
 
 import { javascriptGenerator } from 'blockly/javascript';
 import { workspaceSaveBlocks, workspaceLoadBlocks } from './serialization';
-import { initLanguage, µcB_changeLanguage } from './language';
-import { languagesMapBlockly } from './languages/languageMap';
+import { HTML_populateLanguages, µcB_changeLanguage } from './language';
 import { changeTheme, changeRenderer } from './options';
 import { basic_toolbox, ToolboxConfiguration } from './toolbox';
+import { setParams } from './tools';
 
 //plugins
 import { Backpack } from '@blockly/workspace-backpack';
@@ -29,11 +29,9 @@ import { ContentHighlight } from '@blockly/workspace-content-highlight';
 import { Modal } from '@blockly/plugin-modal';
 import { NavigationController } from '@blockly/keyboard-navigation';
 import { shadowBlockConversionChangeListener } from '@blockly/shadow-block-converter';
-import { ContinuousToolbox, ContinuousFlyout, ContinuousMetrics } from '@blockly/continuous-toolbox';
+//import { ContinuousToolbox, ContinuousFlyout, ContinuousMetrics } from '@blockly/continuous-toolbox';
 //import { CrossTabCopyPaste } from '@blockly/plugin-cross-tab-copy-paste';
 //import { Multiselect, MultiselectBlockDragger } from '@mit-app-inventor/blockly-plugin-workspace-multiselect';
-//not sure it works fine...
-//import { ScrollOptions, ScrollBlockDragger, ScrollMetricsManager } from '@blockly/plugin-scroll-options';
 
 
 import './css/index.css';
@@ -62,7 +60,7 @@ export interface BlocklyApplicationType {
 `LANGUAGE_NAME` property is an empty object, and the `LANGUAGE_RTL` property is an empty array. */
 export const µcB: BlocklyApplicationType = {
   workspace: new Blockly.Workspace(),
-  toolbox: basic_toolbox,
+  toolbox: JSON.parse(JSON.stringify(basic_toolbox)), //deep copy
   LANGUAGE_NAME: {},
   LANGUAGE_RTL: [],
   WORKSPACE_OPTIONS: {},
@@ -80,18 +78,7 @@ export const µcB: BlocklyApplicationType = {
     snap: true
   },
   scrollbars: true,
-  /*plugins: {
-    'blockDragger': ScrollBlockDragger,
-    'metricsManager': ScrollMetricsManager,
-  },
-  move: {
-    wheel: true,
-  },*/
-  /* plugins: {
-    'toolbox': ContinuousToolbox,
-    'flyoutsVerticalToolbox': ContinuousFlyout,
-    'metricsManager': ContinuousMetrics,
-  }, */
+  toolbox: µcB.toolbox,
   zoom:
   {
     controls: true,
@@ -120,29 +107,13 @@ export const µcB: BlocklyApplicationType = {
  */
 µcB.LANGUAGE_RTL = ['ar', 'fa', 'he', 'lki'];
 
-
-// particular to this plugins
-const navigationpluginKeyboardNav = new NavigationController();
-let contentHighlight = new ContentHighlight();
-let minimap = new PositionedMinimap();
-
-/**
- * The function `µcB_workspaceInject` generates a Blockly workspace with specified options and assigns it to a
- * variable.
- * @param isLangRtl - A boolean value indicating whether the workspace should be rendered
- * in right-to-left mode. If true, the workspace will be rendered in right-to-left mode. If false, it
- * will be rendered in left-to-right mode. The default value is true.
- * @param renderNew - The `renderNew` parameter is a string that specifies the
- * renderer to be used for the Blockly workspace. It determines how the blocks and workspace will be
- * visually rendered.
- */
-export const µcB_workspaceInject = (isLangRtl: boolean = true, renderNew: string = 'geras'): void => {
-  µcB.WORKSPACE_OPTIONS['renderer'] = renderNew;
-  µcB.WORKSPACE_OPTIONS['rtl'] = isLangRtl;
-  µcB.WORKSPACE_OPTIONS['toolbox'] = µcB.toolbox!;
-  µcB.workspace = div_workspace_content_blockly && Blockly.inject(div_workspace_content_blockly, µcB.WORKSPACE_OPTIONS);
-  contentHighlight = new ContentHighlight(µcB.workspace);
-}
+/* The above code is creating instances of different plugins for a TypeScript application.*/
+const plugin_KeyboardNav = new NavigationController();
+let plugin_contentHighlight = new ContentHighlight();
+let plugin_minimap = new PositionedMinimap();
+let plugin_modal = new Modal();
+let plugin_workspaceSearch = new WorkspaceSearch();
+let plugin_zoomToFit = new ZoomToFitControl();
 
 /**
  * The `µcB_workspaceOnResize` function calculates the position and dimensions of `div_workspace_content_blockly` based on the
@@ -281,6 +252,57 @@ const HTML_addFlexResizerEvents = (workspace: Blockly.WorkspaceSvg): void => {
 };
 
 /**
+ * The function `HTML_onChange` sets up event listeners for the `onchange` event of two HTML select
+ * elements and calls corresponding functions based on the selected values.
+ */
+const HTML_onChange = (): void => {
+  const dropdownMenu = <HTMLSelectElement>document.getElementById('languageMenu');
+  dropdownMenu.onchange = () => {
+    const rtl: boolean = µcB_changeLanguage(true);
+    µcB.WORKSPACE_OPTIONS['rtl'] = rtl;
+    workspaceReboot(µcB);
+  };
+  const themeMenu = <HTMLSelectElement>document.getElementById('themeMenu');
+  themeMenu.onchange = () => {
+    const theme = changeTheme(µcB, themeMenu.value);
+    return theme;
+  };
+  const rendererMenu = <HTMLSelectElement>document.getElementById('rendererMenu');
+  rendererMenu.onchange = () => {
+    const renderer = changeRenderer(µcB, rendererMenu.value);
+    return renderer;
+  };
+  const pluginMinimapCheck = <HTMLInputElement>document.getElementById('pluginMinimap');
+  pluginMinimapCheck.onchange = () => {
+    const isThereMinimap: HTMLElement = document.getElementsByClassName('blockly-minimap')[0] as HTMLElement;
+    isThereMinimap.style.visibility = pluginMinimapCheck.checked ? "visible" : "hidden";
+    return pluginMinimapCheck.checked;
+  };
+  const pluginKeyboardNavCheck = <HTMLInputElement>document.getElementById('pluginKeyboardNav');
+  pluginKeyboardNavCheck.onchange = () => {
+    pluginKeyboardNavCheck.checked ? plugin_KeyboardNav.enable(µcB.workspace) : plugin_KeyboardNav.disable(µcB.workspace);
+    return pluginKeyboardNavCheck.checked;
+  };
+  const pluginHighlightCheck = <HTMLInputElement>document.getElementById('pluginHighlight');
+  pluginHighlightCheck.onchange = () => {
+    pluginHighlightCheck.checked ? plugin_contentHighlight.init() : plugin_contentHighlight.dispose();
+    return pluginHighlightCheck.checked;
+  };
+  const pluginContinuousToolbox = <HTMLInputElement>document.getElementById('pluginContinuousToolbox');
+  pluginContinuousToolbox.onchange = () => {
+    if (pluginContinuousToolbox.checked) { }
+    /* µcB.WORKSPACE_OPTIONS['plugins'] = {
+      'toolbox': ContinuousToolbox,
+      'flyoutsVerticalToolbox': ContinuousFlyout,
+      'metricsManager': ContinuousMetrics,
+    } */
+    else delete µcB.WORKSPACE_OPTIONS['plugins'];
+    //workspaceReboot(µcB);
+    return pluginContinuousToolbox.checked;
+  };
+}
+
+/**
  * The function `workspaceListeners` adds event listeners to a Blockly workspace to save changes to
  * storage and run code whenever the workspace changes meaningfully.
  * @param workspace - The parameter "workspace" is of type Blockly.WorkspaceSvg. It represents the
@@ -307,52 +329,11 @@ const workspaceListeners = (workspace: Blockly.WorkspaceSvg): void => {
   });
 }
 
-/**
- * The function `HTML_onChange` sets up event listeners for the `onchange` event of two HTML select
- * elements and calls corresponding functions based on the selected values.
- */
-const HTML_onChange = (): void => {
-  const dropdownMenu = <HTMLSelectElement>document.getElementById('languageMenu');
-  dropdownMenu.onchange = () => {
-    µcB_changeLanguage(true);
-  };
-  const themeMenu = <HTMLSelectElement>document.getElementById('themeMenu');
-  themeMenu.onchange = () => {
-    const theme = changeTheme(themeMenu.value);
-    return theme;
-  };
-  const rendererMenu = <HTMLSelectElement>document.getElementById('rendererMenu');
-  rendererMenu.onchange = () => {
-    const renderer = changeRenderer(rendererMenu.value);
-    return renderer;
-  };
-  const pluginMinimapCheck = <HTMLInputElement>document.getElementById('pluginMinimap');
-  pluginMinimapCheck.onchange = () => {
-    const isThereMinimap: HTMLElement = document.getElementsByClassName('blockly-minimap')[0] as HTMLElement;
-    isThereMinimap.style.visibility = pluginMinimapCheck.checked ? "visible" : "hidden";
-    return pluginMinimapCheck.checked;
-  };
-  const pluginKeyboardNavCheck = <HTMLInputElement>document.getElementById('pluginKeyboardNav');
-  pluginKeyboardNavCheck.onchange = () => {
-    pluginKeyboardNavCheck.checked ? navigationpluginKeyboardNav.enable(µcB.workspace) : navigationpluginKeyboardNav.disable(µcB.workspace);
-    return pluginKeyboardNavCheck.checked;
-  };
-  const pluginHighlightCheck = <HTMLInputElement>document.getElementById('pluginHighlight');
-  pluginHighlightCheck.onchange = () => {
-    pluginHighlightCheck.checked ? contentHighlight.init() : contentHighlight.dispose();
-    return pluginHighlightCheck.checked;
-  };
-}
-
 // The function `µcB_workspaceInit` build workspace by calling sub constructor
 const µcB_workspaceInit = (): void => {
-  changeTheme();
   // Define resizable flex views: workspace, code, console.
   window.addEventListener('resize', µcB_workspaceOnResize, false);
-  µcB_workspaceOnResize();
   HTML_addFlexResizerEvents(µcB.workspace as Blockly.WorkspaceSvg);
-  // Intial load of workspace with previous state
-  workspaceLoadBlocks(µcB.workspace);
   // Add different listeners related to Blockly workspace
   workspaceListeners(µcB.workspace as Blockly.WorkspaceSvg);
 }
@@ -363,16 +344,14 @@ const µcB_workspaceInit = (): void => {
  * new workspace, logs the main workspace blocks from the session storage, sets up workspace plugins
  * again, and loads the saved blocks into the new workspace.
  */
-export const workspaceReboot = (): void => {
-  workspaceSaveBlocks(µcB.workspace);
-  workspaceSetupPlugins(µcB.workspace, true);
-  µcB.workspace.dispose(); const dropdownMenu: HTMLSelectElement = document.querySelector('#languageMenu')!;
-  const newLang: string = dropdownMenu.options[dropdownMenu.selectedIndex].value;
-  Blockly.setLocale(languagesMapBlockly[newLang]);
-  µcB.workspace = Blockly.inject(div_workspace_content_blockly, µcB.WORKSPACE_OPTIONS);
-  console.log(window.sessionStorage.getItem('mainWorkspace_blocks'))
-  workspaceSetupPlugins(µcB.workspace, false);
-  workspaceLoadBlocks(µcB.workspace);
+export const workspaceReboot = (app: BlocklyApplicationType): void => {
+  workspaceSaveBlocks(app.workspace);
+  workspaceSetupPlugins(app.workspace, true);
+  app.workspace.dispose();
+  app.workspace = Blockly.inject(div_workspace_content_blockly, app.WORKSPACE_OPTIONS);
+  workspaceSetupPlugins(app.workspace, false);
+  workspaceLoadBlocks(app.workspace);
+  (app.workspace as Blockly.WorkspaceSvg).scrollCenter();
 }
 
 // The function `workspaceSetupPlugins` sets up all plugins added in workspace
@@ -390,36 +369,42 @@ export const workspaceSetupPlugins = (workspace: Blockly.Workspace, disposePlugi
       disablePreconditionChecks: true,
     },
   };
-  const backpack = new Backpack(workspace as Blockly.WorkspaceSvg, backpackOptions);
-  disposePlugin ? backpack.dispose() : backpack.init();
-  const zoomToFit = new ZoomToFitControl(workspace);
-  disposePlugin ? zoomToFit.dispose() : zoomToFit.init();
-  const workspaceSearch = new WorkspaceSearch(workspace);
-  disposePlugin ? workspaceSearch.dispose() : workspaceSearch.init();
+  const plugin_backpack = new Backpack(workspace as Blockly.WorkspaceSvg, backpackOptions);
+  plugin_contentHighlight = new ContentHighlight(workspace);
+  plugin_modal = new Modal(workspace);
+  plugin_workspaceSearch = new WorkspaceSearch(workspace);
+  plugin_zoomToFit = new ZoomToFitControl(workspace);
   const pluginHighlightCheck = <HTMLInputElement>document.getElementById('pluginHighlight');
-  if (pluginHighlightCheck.checked)
-    disposePlugin ? contentHighlight.dispose() : contentHighlight.init();
-  const modal = new Modal(workspace);
-  disposePlugin ? modal.dispose() : modal.init();
-  //particular to this plugin
-  if (!disposePlugin) {
-    navigationpluginKeyboardNav.init();
-    navigationpluginKeyboardNav.addWorkspace(workspace);
+  const pluginMinimap = <HTMLInputElement>document.getElementById('pluginMinimap');
+  if (disposePlugin) {
+    µcB.workspace.addChangeListener(shadowBlockConversionChangeListener);
+    plugin_KeyboardNav.dispose();
+    plugin_backpack.dispose();
+    if (pluginHighlightCheck.checked) {
+      plugin_contentHighlight.dispose();
+      pluginHighlightCheck.checked = false;
+    }
+    plugin_minimap.dispose();
+    pluginMinimap.checked = false;
+    plugin_modal.dispose();
+    plugin_workspaceSearch.dispose();
+    plugin_zoomToFit.dispose();
   } else {
-    navigationpluginKeyboardNav.removeWorkspace(workspace);
-    navigationpluginKeyboardNav.dispose();
+    µcB.workspace.removeChangeListener(shadowBlockConversionChangeListener);
+    plugin_KeyboardNav.init();
+    plugin_KeyboardNav.addWorkspace(workspace);
+    plugin_backpack.init();
+    if (pluginHighlightCheck.checked) {
+      plugin_contentHighlight.init();
+    }
+    //particular to this plugin
+    plugin_minimap = new PositionedMinimap(workspace);
+    plugin_minimap.init();
+    pluginMinimap.checked = true;
+    plugin_modal.init();
+    plugin_workspaceSearch.init();
+    plugin_zoomToFit.init();
   }
-  //particular to this plugin
-  if (!disposePlugin) {
-    minimap = new PositionedMinimap(workspace);
-    minimap.init();
-  } else {
-    minimap.dispose();
-  }
-  µcB.workspace.addChangeListener(shadowBlockConversionChangeListener);
-  /*const plugin = new ScrollOptions(µcB.workspace);
-  plugin.init();*/
-
   /* it seems there's conflict with nav keyboard copy function
   const options = {
     contextMenu: true,
@@ -448,15 +433,20 @@ const DomIsLoaded = (callback: () => void): void => {
 }
 // The `DomIsLoaded` function prepares everything needed by structure of DOM.
 DomIsLoaded((): void => {
-  initLanguage(µcB);
+  HTML_populateLanguages(µcB);
+  HTML_onChange();
   µcB_changeLanguage(false);
+  µcB.workspace = Blockly.inject(div_workspace_content_blockly, µcB.WORKSPACE_OPTIONS);
   µcB_workspaceInit();
 });
+
 /* The `window.onload` event is triggered when the entire page has finished loading, including all
 resources such as images and scripts. */
 window.onload = (): void => {
   div_code_generated.textContent = javascriptGenerator.workspaceToCode(µcB.workspace);
   let tempComponent: HTMLElement = document.getElementById("flex_container_up") as HTMLElement;
+  /* The above code is retrieving values from the sessionStorage and applying them as styles to
+  different elements on the page. */
   if (window.sessionStorage.getItem('flex_container_up')) tempComponent.style.flex = window.sessionStorage.getItem('flex_container_up')!;
   tempComponent = document.getElementById("flex_container_up_left")!;
   if (window.sessionStorage.getItem('flex_container_up_left')) tempComponent.style.flex = window.sessionStorage.getItem('flex_container_up_left')!;
@@ -465,10 +455,10 @@ window.onload = (): void => {
   tempComponent = document.getElementById("flex_container_bottom")!;
   if (window.sessionStorage.getItem('flex_container_bottom')) tempComponent.style.flexGrow = window.sessionStorage.getItem('flex_container_bottom')!;
   workspaceSetupPlugins(µcB.workspace, false);
-  HTML_onChange();
   µcB_workspaceOnResize();
-  console.log(window.sessionStorage.getItem('mainWorkspace_blocks'))
   workspaceLoadBlocks(µcB.workspace);
+  setParams(µcB);
+  (µcB.workspace as Blockly.WorkspaceSvg).scrollCenter();
 };
 /* The above code is a TypeScript code snippet that sets the `onbeforeunload` event handler for the
 window object. This event is triggered when the user is about to leave the current page, and save windows position in UI. */
@@ -477,4 +467,5 @@ window.onbeforeunload = (): void => {
   window.sessionStorage?.setItem('flex_container_up_left', document.getElementById(`flex_container_up_left`)!.style.flex);
   window.sessionStorage?.setItem('flex_container_up_right', document.getElementById(`flex_container_up_right`)!.style.flexGrow);
   window.sessionStorage?.setItem('flex_container_bottom', document.getElementById(`flex_container_bottom`)!.style.flexGrow);
+  workspaceSaveBlocks(µcB.workspace);
 }

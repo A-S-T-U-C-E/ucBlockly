@@ -25,6 +25,11 @@ export const frLang: LanguageMap = {
     THEME_HIGHCONTRAST: "contraste élevé",
     THEME_DARK: "sombre",
     THEME_BLACKWHITE: "noir et blanc",
+    THEME_SESHAT: "seshat",
+    RENDERER_GERAS: "geras",
+    RENDERER_THRASOS: "thrasos",
+    RENDERER_ZELOS: "zelos",
+    RENDERER_MINI: "minimaliste",
     EMPTY_BACKPACK: "vider le sac à dos",
   }
 };

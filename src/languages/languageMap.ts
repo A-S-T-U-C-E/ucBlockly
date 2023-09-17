@@ -76,6 +76,11 @@ export interface LanguageItem {
   THEME_HIGHCONTRAST: string;
   THEME_DARK: string;
   THEME_BLACKWHITE: string;
+  THEME_SESHAT: string;
+  RENDERER_GERAS: string;
+  RENDERER_THRASOS: string;
+  RENDERER_ZELOS: string;
+  RENDERER_MINI: string;
   // plugins Blockly
   EMPTY_BACKPACK : string;
 }

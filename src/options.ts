@@ -1,38 +1,44 @@
 import * as Blockly from 'blockly';
-import { µcB, workspaceReboot } from './index';
+import { workspaceReboot, BlocklyApplicationType } from './index';
+import { addReplaceParamToUrl } from './tools';
 
 import DarkTheme from '@blockly/theme-dark';
 import ModernTheme from '@blockly/theme-modern';
 import HighContrastTheme from '@blockly/theme-highcontrast';
 import DeuteranopiaTheme from '@blockly/theme-deuteranopia';
 import TritanopiaTheme from '@blockly/theme-tritanopia';
+import BandWTheme from './theme_black_and_white';
+
+import {initTheme} from '@aneilmac/blockly-theme-seshat';
+const Seshat = initTheme(Blockly);
 
 /**
- * The function `changeTheme` sets the theme of the Blockly workspace based on the `themeChoice`
- * parameter.
- * @param themeChoice - The parameter `themeChoice` is a string that represents the user's choice of
- * theme. It can have the following values:
+ * The function `changeTheme` allows the user to change the theme of a Blockly workspace based on a
+ * given theme choice.
+ * @param themeChoice - The `themeChoice` parameter is a string that represents the
+ * chosen theme. It is optional and has a default value of `'classic'`.
  */
-export function changeTheme(themeChoice: string = 'classic') {
+const themeMappings: { [key: string]: Blockly.Theme } = {
+  classic: Blockly.Themes.Classic,
+  modern: ModernTheme,
+  deuteranopia: DeuteranopiaTheme,
+  tritanopia: TritanopiaTheme,
+  zelos: Blockly.Themes.Zelos,
+  high_contrast: HighContrastTheme,
+  dark: DarkTheme,
+  blackWhite: BandWTheme,
+  seshat: Seshat,
+};
+
+export const changeTheme = (app: BlocklyApplicationType, themeChoice?: string): string => {
   if (!themeChoice)
     themeChoice = (document.getElementById('themeMenu') as HTMLSelectElement).value;
-  if (themeChoice === "dark") {
-    (µcB.workspace as Blockly.WorkspaceSvg).setTheme(DarkTheme);
-  } else if (themeChoice === "high_contrast") {
-    (µcB.workspace as Blockly.WorkspaceSvg).setTheme(HighContrastTheme);
-  } else if (themeChoice === "deuteranopia") {
-    (µcB.workspace as Blockly.WorkspaceSvg).setTheme(DeuteranopiaTheme);
-  } else if (themeChoice === "tritanopia") {
-    (µcB.workspace as Blockly.WorkspaceSvg).setTheme(TritanopiaTheme);
-  } else if (themeChoice === "modern") {
-    (µcB.workspace as Blockly.WorkspaceSvg).setTheme(ModernTheme);
-  } /*else if (themeChoice === "blackWhite") {
-    (µcB.workspace as Blockly.WorkspaceSvg).setTheme(BaWTheme);
-  }*/ else if (themeChoice === "zelos") {
-    (µcB.workspace as Blockly.WorkspaceSvg).setTheme(Blockly.Themes.Zelos);
-  } else {
-    (µcB.workspace as Blockly.WorkspaceSvg).setTheme(Blockly.Themes.Classic);
+  app.WORKSPACE_OPTIONS['theme'] = themeMappings[themeChoice];
+  if (themeMappings.hasOwnProperty(themeChoice)) {
+    (app.workspace as Blockly.WorkspaceSvg).setTheme(themeMappings[themeChoice]);
   }
+  window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "theme", themeChoice));
+  return themeChoice;
 }
 
 /**
@@ -41,7 +47,9 @@ export function changeTheme(themeChoice: string = 'classic') {
  * @param renderNew - The `renderNew` parameter is a string that represents the value of the
  * selected option in the `rendererMenu` HTML select element.
  */
-export function changeRenderer(renderNew: string = (document.getElementById('rendererMenu') as HTMLSelectElement).value){  
-  µcB.WORKSPACE_OPTIONS['renderer'] = renderNew;
-  workspaceReboot();
+export const changeRenderer = (app: BlocklyApplicationType, renderNew: string = (document.getElementById('rendererMenu') as HTMLSelectElement).value): string => {
+  app.WORKSPACE_OPTIONS['renderer'] = renderNew;
+  workspaceReboot(app);
+  window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "renderer", renderNew));
+  return renderNew;
 }

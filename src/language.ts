@@ -11,23 +11,22 @@
  */
 
 import * as Blockly from 'blockly';
+import { BlocklyApplicationType, µcB } from './index';
 import { basic_toolbox } from './toolbox';
-import { µcB_workspaceInject, BlocklyApplicationType, µcB } from './index';
-import { addReplaceParamToUrl, getStringParamFromUrl } from './tools';
-import { workspaceSaveBlocks, workspaceLoadBlocks } from './serialization';
+import { addReplaceParamToUrl, getStringParamFromUrl, setParams } from './tools';
 import { languagesMap, languagesMapBlockly, LanguageItem } from './languages/languageMap';
 
 /**
  * The function `getLangParamFromUrl` retrieves the language parameter from a URL and returns it,
  * defaulting to English if the parameter is not found or is invalid.
- * @param {BlocklyApplicationType} blocklyObject - The `blocklyObject` parameter is of type
+ * @param blocklyObject - The `blocklyObject` parameter is of type
  * `BlocklyApplicationType`.
  * @returns the value of the `lang` variable, which is a string representing the language parameter
  * obtained from the URL.
  */
 const getLangParamFromUrl = (): string => {
   let lang: string;
-  lang = getStringParamFromUrl('lang', '');
+  lang = getStringParamFromUrl('lang');
   if (µcB.LANGUAGE_NAME[lang] === undefined || !lang) {
     // Default to English.
     lang = 'en';
@@ -44,7 +43,7 @@ const getLangParamFromDropdown = (): string => {
 
 /**
  * The function checks if the language of a Blockly object is right-to-left (RTL).
- * @param {BlocklyApplicationType} blocklyObject - The `blocklyObject` parameter is an object that
+ * @param blocklyObject - The `blocklyObject` parameter is an object that
  * represents the Blockly application. It likely contains various properties and methods related to the
  * Blockly functionality.
  * @returns a boolean value.
@@ -58,19 +57,53 @@ const isLangRtl = (blocklyObject: BlocklyApplicationType): boolean => {
  * workspace blocks, disposes the workspace, sets the Blockly locale, changes the language of the
  * toolbox, injects the workspace, loads the saved blocks, and centers the workspace.
  */
-export const µcB_changeLanguage = (menuOrUrl: boolean): void => {
+export const µcB_changeLanguage = (menuOrUrl: boolean): boolean => {
   const newLang: string = menuOrUrl ? getLangParamFromDropdown() : getLangParamFromUrl();
   // Set the HTML's language and direction.
   const rtl: boolean = isLangRtl(µcB);
   HTML_changeLanguage(newLang);
-  workspaceSaveBlocks(µcB.workspace);
-  µcB.workspace.dispose();
-  Blockly.setLocale(languagesMapBlockly[newLang]);
   µcB_changeLanguageToolbox(newLang);
-  µcB_workspaceInject(rtl);
-  workspaceLoadBlocks(µcB.workspace);
-  (µcB.workspace as Blockly.WorkspaceSvg).scrollCenter();
+  Blockly.setLocale(languagesMapBlockly[newLang]);
+  setParams(µcB);
+  return rtl;
 };
+
+/**
+ * The function `µcB_changeLanguageToolbox` changes the names of categories in a toolbox based on a
+ * language map.
+ * @param newLang - The `newLang` parameter is a string that represents the new language to
+ * which the toolbox should be changed.
+ */
+const µcB_changeLanguageToolbox = (newLang: string): void => {
+  const basic_toolboxCopy = JSON.parse(JSON.stringify(basic_toolbox.contents));
+  const langMap: LanguageItem = languagesMap[newLang];
+  interface Category {
+    kind: string;
+    name: string;
+    originalKey: string;
+    contents?: Category[];
+  }
+  /**
+   * The function replaces the name of a category with its corresponding translation if available in
+   * the language map.
+   * @param category - The parameter `category` is of type `Category`, which is an object
+   * that represents a category.
+   */
+  function replaceCategoryName(category: Category) {
+    if (category.kind === 'category' && category.name && langMap[category.name as keyof LanguageItem]) {
+      category.name = langMap[category.name as keyof LanguageItem];
+    }
+    if (category.contents) {
+      category.contents.forEach((content: Category) => {
+        replaceCategoryName(content);
+      });
+    }
+  }
+  basic_toolboxCopy.forEach((category: Category) => {
+    replaceCategoryName(category);
+  });
+  µcB.toolbox.contents = JSON.parse(JSON.stringify(basic_toolboxCopy));
+}
 
 /**
  * The function `HTML_changeLanguage` updates the text content of elements with the class "lang"
@@ -92,55 +125,19 @@ const HTML_changeLanguage = (newLang: string): void => {
 }
 
 /**
- * The function `µcB_changeLanguageToolbox` changes the names of categories in a toolbox based on a
- * language map.
- * @param {string} newLang - The `newLang` parameter is a string that represents the new language to
- * which the toolbox should be changed.
- */
-const µcB_changeLanguageToolbox = (newLang: string): void => {
-  const toolboxCopy = JSON.parse(JSON.stringify(basic_toolbox.contents));
-  const langMap: LanguageItem = languagesMap[newLang];
-  interface Category {
-    kind: string;
-    name: string;
-    contents?: Category[];
-  }
-  /**
-   * The function replaces the name of a category with its corresponding translation if available in
-   * the language map.
-   * @param {Category} category - The parameter `category` is of type `Category`, which is an object
-   * that represents a category.
-   */
-  function replaceCategoryName(category: Category) {
-    if (category.kind === 'category' && category.name && langMap[category.name as keyof LanguageItem]) {
-      category.name = langMap[category.name as keyof LanguageItem];
-    }
-    if (category.contents) {
-      category.contents.forEach((content: Category) => {
-        replaceCategoryName(content);
-      });
-    }
-  }
-  toolboxCopy.forEach((category: Category) => {
-    replaceCategoryName(category);
-  });
-  µcB.toolbox.contents = toolboxCopy;
-}
-
-/**
- * The `initLanguage` function is responsible for populating the language selection menu on a webpage
+ * The `HTML_populateLanguages` function is responsible for populating the language selection menu on a webpage
  * with options sorted alphabetically.
  * @param blocklyObject - The `blocklyObject` parameter is an object that
  * contains information about the Blockly application. It likely includes properties such as
  * `LANGUAGE_NAME`, which is an object that maps language codes to their corresponding names.
  */
-export const initLanguage = (blocklyObject: BlocklyApplicationType): void => {
+export const HTML_populateLanguages = (blocklyObject: BlocklyApplicationType): void => {
   /**
    * The function sorts an array of language names based on their first argument.
-   * @param {string[]} a - a is an array of strings representing languages. Each element in the array
+   * @param a - a is an array of strings representing languages. Each element in the array
    * is an array itself, with the first element being the name of the language (e.g. 'English',
    * 'Русский', '简体字', etc) and the remaining elements being additional information about the language.
-   * @param {string[]} b - The parameter `b` is an array of strings.
+   * @param b - The parameter `b` is an array of strings.
    * @returns The `comp` function is being used as a comparator function to sort the `languages` array.
    * The `comp` function compares two elements `a` and `b` based on their first element (`a[0]` and
    * `b[0]`).

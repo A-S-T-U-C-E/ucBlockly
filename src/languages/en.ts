@@ -25,6 +25,11 @@ export const enLang: LanguageMap = {
     THEME_HIGHCONTRAST: "high contrast",
     THEME_DARK: "dark",
     THEME_BLACKWHITE: "black and white",
+    THEME_SESHAT: "seshat",
+    RENDERER_GERAS: "geras",
+    RENDERER_THRASOS: "thrasos",
+    RENDERER_ZELOS: "zelos",
+    RENDERER_MINI: "minimalist",
     EMPTY_BACKPACK: "empty backpack",
   }
 };

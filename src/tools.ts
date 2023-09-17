@@ -4,6 +4,8 @@
  * @author scanet\@libreducc (Sébastien Canet)
  */
 
+import { BlocklyApplicationType } from './index';
+
 /**
  * @license
  * Copyright 2023 ASTUCE (Sébastien Canet microcompany)
@@ -41,8 +43,42 @@ export const addReplaceParamToUrl = (url: string, param: string, value: string):
  * value to be returned if the specified query parameter is not found in the URL.
  * @returns The function `getStringParamFromUrl` returns a string value.
  */
-export const getStringParamFromUrl = (name: string, defaultValue: string): string => {
+export const getStringParamFromUrl = (name: string): string => {
   const regex = new RegExp('[?&]' + name + '=([^&]+)');
   const val = regex.exec(location.search);
-  return val ? decodeURIComponent(val[1].replace(/\+/g, '%20')) : defaultValue;
+  return val ? decodeURIComponent(val[1].replace(/\+/g, '%20')) : "nope";
+};
+
+
+export const setParams = (app: BlocklyApplicationType): void => {
+  let newParam: string;
+  let dropdownMenu: HTMLSelectElement
+  newParam = getStringParamFromUrl('lang');
+  dropdownMenu = document.getElementById('languageMenu') as HTMLSelectElement;
+  if (newParam == "nope")
+    newParam = dropdownMenu.options[dropdownMenu.selectedIndex].value;
+  else
+    (document.getElementById('languageMenu')! as HTMLSelectElement).value = newParam;
+  window.sessionStorage?.setItem('paramLang', newParam);
+  window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "lang", newParam));
+
+  newParam = getStringParamFromUrl('theme');
+  dropdownMenu = document.getElementById('themeMenu') as HTMLSelectElement;
+  if (newParam == "nope")
+    newParam = dropdownMenu.options[dropdownMenu.selectedIndex].value;
+  else
+    (document.getElementById('themeMenu')! as HTMLSelectElement).value = newParam;
+  app.WORKSPACE_OPTIONS['theme'] = newParam;
+  window.sessionStorage?.setItem('paramTheme', newParam);
+  window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "theme", newParam));
+
+  newParam = getStringParamFromUrl('renderer');
+  dropdownMenu = document.getElementById('rendererMenu') as HTMLSelectElement;
+  if (newParam == "nope")
+    newParam = dropdownMenu.options[dropdownMenu.selectedIndex].value;
+  else
+    (document.getElementById('rendererMenu')! as HTMLSelectElement).value = newParam;
+  app.WORKSPACE_OPTIONS['renderer'] = newParam;
+  window.sessionStorage?.setItem('paramRenderer', newParam);
+  window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "renderer", newParam));
 };
