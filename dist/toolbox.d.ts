@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation Basic toolbox for algorithm.
- * Author scanet\@libreducc (Sébastien Canet)
+ * @author scanet\@libreducc (Sébastien Canet)
  */
 /**
  * @license

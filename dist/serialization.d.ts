@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation Script file to save and load blocks on workspace
- * Author scanet\@libreducc (Sébastien Canet)
+ * @author scanet\@libreducc (Sébastien Canet)
  */
 /**
  * @license
@@ -13,12 +13,13 @@ import * as Blockly from 'blockly/core';
  * @param workspace - The `workspace` parameter is an instance of the Blockly.Workspace class. It
  * represents the Blockly workspace that contains all the blocks and their connections.
  */
-export declare const workspaceSaveBlocks: (workspace: Blockly.Workspace) => void;
+export declare const workspaceSaveBlocks: (workspace: Blockly.Workspace, storageKeyWorkspaceBlocks: string) => void;
 /**
-  * The function `workspaceLoadBlocks` loads blocks from local storage into a Blockly workspace.
-  * @param workspace - The "workspace" parameter is an instance of the Blockly.Workspace class. It
-  * represents the Blockly workspace where blocks are loaded.
-  * @returns If there is no data in the localStorage, then nothing is being returned.
-  */
-export declare const workspaceLoadBlocks: (workspace: Blockly.Workspace) => void;
+ * The function loads blocks into a Blockly workspace from session storage.
+ * @param workspace - The `workspace` parameter is an instance of the `Blockly.Workspace` class. It
+ * represents the Blockly workspace where blocks are loaded.
+ * @returns If the `data` variable is falsy (null, undefined, empty string), then nothing is being
+ * returned.
+ */
+export declare const workspaceLoadBlocks: (workspace: Blockly.Workspace, storageKeyWorkspaceBlocks: string) => void;
 //# sourceMappingURL=serialization.d.ts.map
