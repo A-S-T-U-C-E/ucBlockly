@@ -314,7 +314,7 @@ const workspaceListeners = (workspace: Blockly.WorkspaceSvg): void => {
     // UI events are things like scrolling, zooming, etc.
     // No need to save after one of these.
     if (e.isUiEvent) return;
-    workspaceSaveBlocks(workspace);
+    workspaceSaveBlocks(workspace, 'mainWorkspace_blocks');
   });
 
   // Whenever the workspace changes meaningfully, run the code again.
@@ -345,12 +345,12 @@ const µcB_workspaceInit = (): void => {
  * again, and loads the saved blocks into the new workspace.
  */
 export const workspaceReboot = (app: BlocklyApplicationType): void => {
-  workspaceSaveBlocks(app.workspace);
+  workspaceSaveBlocks(app.workspace, 'mainWorkspace_blocks');
   workspaceSetupPlugins(app.workspace, true);
   app.workspace.dispose();
   app.workspace = Blockly.inject(div_workspace_content_blockly, app.WORKSPACE_OPTIONS);
   workspaceSetupPlugins(app.workspace, false);
-  workspaceLoadBlocks(app.workspace);
+  workspaceLoadBlocks(app.workspace, 'mainWorkspace_blocks');
   (app.workspace as Blockly.WorkspaceSvg).scrollCenter();
 }
 
@@ -456,8 +456,8 @@ window.onload = (): void => {
   if (window.sessionStorage.getItem('flex_container_bottom')) tempComponent.style.flexGrow = window.sessionStorage.getItem('flex_container_bottom')!;
   workspaceSetupPlugins(µcB.workspace, false);
   µcB_workspaceOnResize();
-  workspaceLoadBlocks(µcB.workspace);
   setParams(µcB);
+  workspaceLoadBlocks(µcB.workspace, 'mainWorkspace_blocks');
   (µcB.workspace as Blockly.WorkspaceSvg).scrollCenter();
 };
 /* The above code is a TypeScript code snippet that sets the `onbeforeunload` event handler for the
@@ -467,5 +467,6 @@ window.onbeforeunload = (): void => {
   window.sessionStorage?.setItem('flex_container_up_left', document.getElementById(`flex_container_up_left`)!.style.flex);
   window.sessionStorage?.setItem('flex_container_up_right', document.getElementById(`flex_container_up_right`)!.style.flexGrow);
   window.sessionStorage?.setItem('flex_container_bottom', document.getElementById(`flex_container_bottom`)!.style.flexGrow);
-  workspaceSaveBlocks(µcB.workspace);
+  workspaceSaveBlocks(µcB.workspace, 'mainWorkspace_blocks');
+  workspaceSetupPlugins(µcB.workspace, true);
 }

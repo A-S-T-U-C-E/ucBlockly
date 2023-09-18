@@ -11,16 +11,14 @@
 
 import * as Blockly from 'blockly/core';
 
-const storageKeyWrokspaceBlocks = 'mainWorkspace_blocks';
-
 /**
  * The function `workspaceSaveBlocks` saves the blocks in a Blockly workspace to the local storage.
  * @param workspace - The `workspace` parameter is an instance of the Blockly.Workspace class. It
  * represents the Blockly workspace that contains all the blocks and their connections.
  */
-export const workspaceSaveBlocks = function(workspace: Blockly.Workspace) {
+export const workspaceSaveBlocks = function(workspace: Blockly.Workspace, storageKeyWorkspaceBlocks: string) {
   const data = Blockly.serialization.workspaces.save(workspace);
-  window.sessionStorage?.setItem(storageKeyWrokspaceBlocks, JSON.stringify(data));
+  window.sessionStorage?.setItem(storageKeyWorkspaceBlocks, JSON.stringify(data));
 };
 
 /**
@@ -30,13 +28,13 @@ export const workspaceSaveBlocks = function(workspace: Blockly.Workspace) {
  * @returns If the `data` variable is falsy (null, undefined, empty string), then nothing is being
  * returned.
  */
-export const workspaceLoadBlocks = function(workspace: Blockly.Workspace) {
-  const data = window.sessionStorage?.getItem(storageKeyWrokspaceBlocks);
+export const workspaceLoadBlocks = function(workspace: Blockly.Workspace, storageKeyWorkspaceBlocks: string) {
+  const data = window.sessionStorage?.getItem(storageKeyWorkspaceBlocks);
   if (!data) return;
 
   // Don't emit events during loading.
   Blockly.Events.disable();
-  Blockly.serialization.workspaces.load(JSON.parse(data), workspace, undefined);
+  Blockly.serialization.workspaces.load(JSON.parse(data), workspace);
   Blockly.Events.enable();
 };
 
