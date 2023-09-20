@@ -31,11 +31,7 @@ export const workspaceSaveBlocks = function(workspace: Blockly.Workspace, storag
 export const workspaceLoadBlocks = function(workspace: Blockly.Workspace, storageKeyWorkspaceBlocks: string) {
   const data = window.sessionStorage?.getItem(storageKeyWorkspaceBlocks);
   if (!data) return;
-
-  // Don't emit events during loading.
-  Blockly.Events.disable();
   Blockly.serialization.workspaces.load(JSON.parse(data), workspace);
-  Blockly.Events.enable();
 };
 
 //blockly json serialization and merging 

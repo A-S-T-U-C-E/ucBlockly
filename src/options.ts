@@ -11,6 +11,13 @@ import BandWTheme from './theme_black_and_white';
 
 import {initTheme} from '@aneilmac/blockly-theme-seshat';
 const Seshat = initTheme(Blockly);
+const SeshatTheme = Blockly.Theme.defineTheme('theme-seshat', {
+ 'base': Seshat,
+ 'name': 'SeshatTheme',
+ 'componentStyles': {
+    'workspaceBackgroundColour': '#ffffff',
+  }
+})
 
 /**
  * The function `changeTheme` allows the user to change the theme of a Blockly workspace based on a
@@ -27,7 +34,7 @@ const themeMappings: { [key: string]: Blockly.Theme } = {
   high_contrast: HighContrastTheme,
   dark: DarkTheme,
   blackWhite: BandWTheme,
-  seshat: Seshat,
+  seshat: SeshatTheme,
 };
 
 export const changeTheme = (app: BlocklyApplicationType, themeChoice?: string): string => {

@@ -132,9 +132,7 @@ const µcB_workspaceOnResize = (): void => {
   div_workspace_content_blockly.style.height = div_workspace_content_area.offsetHeight + 'px';
   div_workspace_content_blockly.style.left = x + 'px';
   div_workspace_content_blockly.style.top = y + 'px';
-  if (µcB.workspace && µcB.workspace instanceof Blockly.WorkspaceSvg) {
-    Blockly.svgResize(µcB.workspace);
-  }
+  Blockly.svgResize(µcB.workspace as Blockly.WorkspaceSvg);
 };
 
 /**
@@ -219,14 +217,14 @@ const µcB_workspaceManageResize = (mouseDown: Event, sizeProp: string, posProp:
 }
 
 /**
- * The function `HTML_addFlexResizerEvents` adds event listeners to the body of the document to handle mouse
+ * The function `µcB_addFlexResizerEvents` adds event listeners to the body of the document to handle mouse
  * events on flex resizer elements and resize the Blockly workspace accordingly.
  * @param workspace - The `workspace` parameter is of type `Blockly.WorkspaceSvg`. It represents the
  * Blockly workspace on which the resizer events will be added.
  * @returns Nothing is being returned. The function has a return type of `void`, which means it does
  * not return any value.
  */
-const HTML_addFlexResizerEvents = (workspace: Blockly.WorkspaceSvg): void => {
+const µcB_addFlexResizerEvents = (): void => {
   document.body.addEventListener("mousedown", function (mouseDown: Event) {
     const html = document.querySelector('html') as HTMLElement;
     const mouseTarget = mouseDown.target as HTMLElement;
@@ -247,7 +245,7 @@ const HTML_addFlexResizerEvents = (workspace: Blockly.WorkspaceSvg): void => {
       html.style.cursor = 'row-resize'; // avoid cursor's flickering
       µcB_workspaceManageResize(mouseDown, "offsetHeight", "pageY");
     }
-    Blockly.svgResize(workspace);
+    Blockly.svgResize(µcB.workspace as Blockly.WorkspaceSvg);
   });
 };
 
@@ -333,7 +331,7 @@ const workspaceListeners = (workspace: Blockly.WorkspaceSvg): void => {
 const µcB_workspaceInit = (): void => {
   // Define resizable flex views: workspace, code, console.
   window.addEventListener('resize', µcB_workspaceOnResize, false);
-  HTML_addFlexResizerEvents(µcB.workspace as Blockly.WorkspaceSvg);
+  µcB_addFlexResizerEvents();
   // Add different listeners related to Blockly workspace
   workspaceListeners(µcB.workspace as Blockly.WorkspaceSvg);
 }
