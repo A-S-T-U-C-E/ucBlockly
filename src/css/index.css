@@ -1,13 +1,14 @@
 /**
  * @fileoverview CSS for index file.
  * @author Blockly Team (https://github.com/google/blockly-samples/tree/master/examples/sample-app-ts)
- * @author scanet@libreducc (Sébastien Canet)
+ * @author scanet@libreduc.cc (Sébastien Canet)
  */
 
 html,
 body {
   height: 100%;
   margin: 0;
+  overflow: hidden;
 }
 
 #container_page {
@@ -32,18 +33,26 @@ flex.wrapper_global {
   flex-direction: column;
 }
 
-flex>flex-resizer {
+flex > flex-resizer {
   flex: 0 0 10px;
   background-repeat: no-repeat;
   background-position: center;
 }
 
-flex.wrapper_element>flex-resizer {
+flex.wrapper_element > flex-resizer {
   cursor: ew-resize;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='30'><path d='M2 0 v30 M5 0 v30 M8 0 v30' fill='none' stroke='black'/></svg>");
 }
 
-flex.wrapper_global>flex-resizer {
+flex.wrapper_global > flex-resizer {
   cursor: ns-resize;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='10'><path d='M0 2 h30 M0 5 h30 M0 8 h30' fill='none' stroke='black'/></svg>");
+}
+
+.monaco-editor {
+  position: absolute !important;
+}
+
+#flex_container_up_right, #flex_content_code, #div_content_code, #div_content_monacoEditor {
+  min-width: 1px;
 }

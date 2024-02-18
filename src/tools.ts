@@ -1,7 +1,7 @@
 /**
  * @packageDocumentation General script file for various function useful for application
  * @author Blockly Team (https://github.com/google/blockly/blob/develop/demos/code/code.js) 
- * @author scanet\@libreducc (Sébastien Canet)
+ * @author scanet\@libreduc.cc (Sébastien Canet)
  */
 
 import { BlocklyApplicationType } from './index';
@@ -34,37 +34,22 @@ export const addReplaceParamToUrl = (url: string, param: string, value: string):
   }
 };
 
-/**
- * The function `getStringParamFromUrl` retrieves a string parameter from the URL and returns its
- * value, or a default value if the parameter is not found.
- * @param name - The `name` parameter is a string that represents the name of the parameter
- * you want to extract from the URL.
- * @param defaultValue - The `defaultValue` parameter is a string that represents the default
- * value to be returned if the specified query parameter is not found in the URL.
- * @returns The function `getStringParamFromUrl` returns a string value.
- */
-export const getStringParamFromUrl = (name: string): string => {
-  const regex = new RegExp('[?&]' + name + '=([^&]+)');
-  const val = regex.exec(location.search);
-  return val ? decodeURIComponent(val[1].replace(/\+/g, '%20')) : "nope";
-};
-
-
-export const setParams = (app: BlocklyApplicationType): void => {
-  let newParam: string;
-  let dropdownMenu: HTMLSelectElement
-  newParam = getStringParamFromUrl('lang');
+export const setParamsBlockly = (app: BlocklyApplicationType): void => {
+  const searchParams = new URLSearchParams(window.location.search);
+  let newParam: string | null;
+  let dropdownMenu: HTMLSelectElement;
+  newParam = searchParams.get('lang');
   dropdownMenu = document.getElementById('languageMenu') as HTMLSelectElement;
-  if (newParam == "nope")
+  if (newParam == null || newParam == "null")
     newParam = dropdownMenu.options[dropdownMenu.selectedIndex].value;
   else
     (document.getElementById('languageMenu')! as HTMLSelectElement).value = newParam;
   window.sessionStorage?.setItem('paramLang', newParam);
   window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "lang", newParam));
 
-  newParam = getStringParamFromUrl('theme');
+  newParam = searchParams.get('theme');
   dropdownMenu = document.getElementById('themeMenu') as HTMLSelectElement;
-  if (newParam == "nope")
+  if (newParam == null || newParam == "null")
     newParam = dropdownMenu.options[dropdownMenu.selectedIndex].value;
   else
     (document.getElementById('themeMenu')! as HTMLSelectElement).value = newParam;
@@ -72,9 +57,9 @@ export const setParams = (app: BlocklyApplicationType): void => {
   window.sessionStorage?.setItem('paramTheme', newParam);
   window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "theme", newParam));
 
-  newParam = getStringParamFromUrl('renderer');
+  newParam = searchParams.get('renderer');
   dropdownMenu = document.getElementById('rendererMenu') as HTMLSelectElement;
-  if (newParam == "nope")
+  if (newParam == null || newParam == "null")
     newParam = dropdownMenu.options[dropdownMenu.selectedIndex].value;
   else
     (document.getElementById('rendererMenu')! as HTMLSelectElement).value = newParam;
@@ -82,3 +67,26 @@ export const setParams = (app: BlocklyApplicationType): void => {
   window.sessionStorage?.setItem('paramRenderer', newParam);
   window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "renderer", newParam));
 };
+
+export const setPluginsInURL = (pluginName: string, pluginKey: string): void => {
+  const searchParams = new URLSearchParams(window.location.search);
+  let paramsURL: string[] | null = [""];
+  if (searchParams.get('options') !== null)
+    paramsURL = searchParams.get('options')!.split(',');
+  //clean array from all null or undefined entry
+  paramsURL = paramsURL.filter(Boolean);
+
+  let result: string = "";
+  const checkBox: boolean = (document.getElementById(pluginName) as HTMLInputElement).checked;
+  window.sessionStorage.setItem(pluginName, checkBox.toString());
+  if (checkBox) {
+    if (!paramsURL.includes(pluginKey)) {
+      paramsURL.push(pluginKey);
+    }
+    result = paramsURL.join(',');
+  } else {
+    result = paramsURL.join(',');
+    result = result.split(",").filter(n => n != pluginKey).join(",");
+  }
+  window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "options", result));
+}

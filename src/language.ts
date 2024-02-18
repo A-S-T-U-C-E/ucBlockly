@@ -1,7 +1,7 @@
 /**
  * @packageDocumentation General script file for translation
  * @author Blockly Team (https://github.com/google/blockly/blob/develop/demos/code/code.js) 
- * @author scanet\@libreducc (Sébastien Canet)
+ * @author scanet\@libreduc.cc (Sébastien Canet)
  */
 
 /**
@@ -13,7 +13,7 @@
 import * as Blockly from 'blockly';
 import { BlocklyApplicationType, µcB } from './index';
 import { basic_toolbox } from './toolbox';
-import { addReplaceParamToUrl, getStringParamFromUrl, setParams } from './tools';
+import { addReplaceParamToUrl, setParamsBlockly } from './tools';
 import { languagesMap, languagesMapBlockly, LanguageItem } from './languages/languageMap';
 
 /**
@@ -25,11 +25,12 @@ import { languagesMap, languagesMapBlockly, LanguageItem } from './languages/lan
  * obtained from the URL.
  */
 const getLangParamFromUrl = (): string => {
-  let lang: string;
-  lang = getStringParamFromUrl('lang');
-  if (µcB.LANGUAGE_NAME[lang] === undefined || !lang) {
+  const searchParams = new URLSearchParams(window.location.search);
+  let lang: string | null = searchParams.get('lang');
+  if (lang == null || µcB.LANGUAGE_NAME[lang] === null || !lang) {
     // Default to English.
     lang = 'en';
+    (document.getElementById('languageMenu')! as HTMLSelectElement).value = lang;
   }
   return lang;
 };
@@ -64,7 +65,7 @@ export const µcB_changeLanguage = (menuOrUrl: boolean): boolean => {
   HTML_changeLanguage(newLang);
   µcB_changeLanguageToolbox(newLang);
   Blockly.setLocale(languagesMapBlockly[newLang]);
-  setParams(µcB);
+  setParamsBlockly(µcB);
   return rtl;
 };
 

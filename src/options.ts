@@ -44,6 +44,7 @@ export const changeTheme = (app: BlocklyApplicationType, themeChoice?: string): 
   if (themeMappings.hasOwnProperty(themeChoice)) {
     (app.workspace as Blockly.WorkspaceSvg).setTheme(themeMappings[themeChoice]);
   }
+  workspaceReboot(app);
   window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "theme", themeChoice));
   return themeChoice;
 }

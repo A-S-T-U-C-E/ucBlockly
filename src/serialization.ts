@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation Script file to save and load blocks on workspace
- * @author scanet\@libreducc (Sébastien Canet)
+ * @author scanet\@libreduc.cc (Sébastien Canet)
  */
 
 /**

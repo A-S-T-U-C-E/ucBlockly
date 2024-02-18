@@ -1,3 +1,5 @@
+declare module "@blockly/block-plus-minus";
+declare module "@blockly/block-shareable-procedures";
 declare module "@blockly/workspace-backpack";
 declare module "@blockly/workspace-minimap";
 declare module "@blockly/zoom-to-fit";

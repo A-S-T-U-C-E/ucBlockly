@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation Define type and table of translated definition
- * @author scanet\@libreducc (Sébastien Canet)
+ * @author scanet\@libreduc.cc (Sébastien Canet)
  */
 
 /**
