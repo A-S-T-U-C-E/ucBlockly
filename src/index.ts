@@ -19,7 +19,7 @@ import { arduinoGenerator } from "./generators/arduino";
 import { workspaceSaveBlocks, workspaceLoadBlocks } from "./serialization";
 import { HTML_populateLanguages, µcB_changeLanguage } from "./language";
 import { changeTheme, changeRenderer } from "./options";
-import { basic_toolbox, ToolboxConfiguration } from "./toolbox";
+import { basic_toolbox2, ToolboxConfiguration } from "./toolbox";
 import { setParamsBlockly, setPluginsInURL } from "./tools";
 
 //plugins
@@ -36,8 +36,8 @@ import { Modal } from "@blockly/plugin-modal";
 import { NavigationController } from "@blockly/keyboard-navigation";
 import { shadowBlockConversionChangeListener } from "@blockly/shadow-block-converter";
 import { ContinuousToolbox, ContinuousFlyout, ContinuousMetrics } from '@blockly/continuous-toolbox';
-//import { CrossTabCopyPaste } from '@blockly/plugin-cross-tab-copy-paste';
-//import { Multiselect, MultiselectBlockDragger } from '@mit-app-inventor/blockly-plugin-workspace-multiselect';
+import { Multiselect, MultiselectBlockDragger } from '@mit-app-inventor/blockly-plugin-workspace-multiselect';
+//import { LexicalVariablesPlugin } from '@mit-app-inventor/blockly-block-lexical-variables';
 
 import "./css/index.css";
 import "./css/µcBlockly.css";
@@ -80,7 +80,7 @@ export interface BlocklyApplicationType {
 `LANGUAGE_NAME` property is an empty object, and the `LANGUAGE_RTL` property is an empty array. */
 export const µcB: BlocklyApplicationType = {
   workspace: new Blockly.Workspace(),
-  toolbox: JSON.parse(JSON.stringify(basic_toolbox)), //deep copy
+  toolbox: JSON.parse(JSON.stringify(basic_toolbox2)), //deep copy
   toolboxChoice: "cat",
   LANGUAGE_NAME: {},
   LANGUAGE_RTL: [],
@@ -110,6 +110,34 @@ export const µcB: BlocklyApplicationType = {
     pinch: true,
   },
   trashcan: true,
+  plugins: {
+    'blockDragger': MultiselectBlockDragger,
+  },
+  // For integration with other plugins that also
+  // need to change the blockDragger above (such as
+  // scroll-options).
+  //baseBlockDragger: ScrollBlockDragger,
+
+  // Double click the blocks to collapse/expand
+  // them (A feature from MIT App Inventor).
+  useDoubleClick: true,
+  // Bump neighbours after dragging to avoid overlapping.
+  bumpNeighbours: false,
+  // Keep the fields of multiple selected same-type blocks with the same value
+  multiFieldUpdate: true,
+  // Use custom icon for the multi select controls.
+  multiselectIcon: {
+    hideIcon: false,
+    weight: 3,
+    enabledIcon: 'https://github.com/mit-cml/workspace-multiselect/raw/main/test/media/select.svg',
+    disabledIcon: 'https://github.com/mit-cml/workspace-multiselect/raw/main/test/media/unselect.svg',
+  },
+  multiselectCopyPaste: {
+    // Enable the copy/paste accross tabs feature (true by default).
+    crossTab: true,
+    // Show the copy/paste menu entries (true by default).
+    menu: true,
+  },
 };
 
 /**
@@ -333,9 +361,12 @@ const HTML_onChange = (): void => {
         'toolbox': ContinuousToolbox,
         'flyoutsVerticalToolbox': ContinuousFlyout,
         'metricsManager': ContinuousMetrics,
-      }
+      };
+      //modify categories alignment in toolbox
+      (document.getElementsByClassName("blocklyToolboxContents")[0] as HTMLElement).style.alignItems = "center";
     } else {
       delete µcB.WORKSPACE_OPTIONS["plugins"];
+      (document.getElementsByClassName("blocklyToolboxContents")[0] as HTMLElement).style.alignItems = "start";
     }
     setPluginsInURL('pluginContinuousToolbox', 'ctoolbox');
     workspaceReboot(µcB);
@@ -414,6 +445,9 @@ export const workspaceReboot = (app: BlocklyApplicationType): void => {
     div_workspace_content_blockly,
     app.WORKSPACE_OPTIONS,
   );
+  const multiselectPlugin = new Multiselect(app.workspace);
+  multiselectPlugin.init(app.WORKSPACE_OPTIONS);
+  //LexicalVariablesPlugin.init(app.workspace);
   //specific to continuous toolbox plugin
   const pluginContinuousToolbox = <HTMLInputElement>(
     document.getElementById("pluginContinuousToolbox")
@@ -562,6 +596,9 @@ DomIsLoaded((): void => {
     div_workspace_content_blockly,
     µcB.WORKSPACE_OPTIONS,
   );
+  const multiselectPlugin = new Multiselect(µcB.workspace);
+  multiselectPlugin.init(µcB.WORKSPACE_OPTIONS);
+  //LexicalVariablesPlugin.init(µcB.workspace);
   µcB_workspaceInit();
 });
 

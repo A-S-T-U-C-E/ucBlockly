@@ -23,7 +23,6 @@ import { BlocklyApplicationType } from './index';
  * @returns The function `addReplaceParamToUrl` returns a modified version of the input `url` string
  * with the specified `param` and `value` added or replaced.
  */
-
 export const addReplaceParamToUrl = (url: string, param: string, value: string): string => {
   const re = new RegExp("([?&])" + param + "=.*?(&|$)", "i");
   const separator = url.indexOf('?') !== -1 ? "&" : "?";
@@ -33,6 +32,15 @@ export const addReplaceParamToUrl = (url: string, param: string, value: string):
     return url + separator + param + "=" + value;
   }
 };
+
+/**
+ * The function `setParamsBlockly` sets parameters for a Blockly application based on URL query
+ * parameters and updates the browser history.
+ * @param {BlocklyApplicationType} app - The `app` parameter in the `setParamsBlockly` function is of
+ * type `BlocklyApplicationType`. This parameter likely represents an instance of a Blockly application
+ * or workspace where Blockly is being used for visual programming. It is used to access and modify
+ * various options and settings related to the Blockly workspace, such
+ */
 
 export const setParamsBlockly = (app: BlocklyApplicationType): void => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -68,6 +76,15 @@ export const setParamsBlockly = (app: BlocklyApplicationType): void => {
   window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "renderer", newParam));
 };
 
+/**
+ * The function `setPluginsInURL` updates the URL parameters based on the state of a checkbox for a
+ * specific plugin.
+ * @param {string} pluginName - The `pluginName` parameter in the `setPluginsInURL` function is a
+ * string that represents the name of a plugin.
+ * @param {string} pluginKey - The `pluginKey` parameter in the `setPluginsInURL` function is a string
+ * that represents the key associated with a specific plugin. This key is used to identify the plugin
+ * in the URL parameters when setting or updating the plugins in the URL.
+ */
 export const setPluginsInURL = (pluginName: string, pluginKey: string): void => {
   const searchParams = new URLSearchParams(window.location.search);
   let paramsURL: string[] | null = [""];

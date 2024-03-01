@@ -13,7 +13,7 @@
     "target": "ES2015",
     "types": [
       "node"
-    ],
+    ]
   },
   "typedocOptions": {
       "entryPoints": ["src/index.ts"],

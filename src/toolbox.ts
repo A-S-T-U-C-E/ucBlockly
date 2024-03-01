@@ -56,6 +56,11 @@ export const basic_toolbox: ToolboxConfiguration = {
   'kind': 'categoryToolbox',
   'contents': [
     {
+    'kind': 'search',
+    'name': 'Search',
+    'contents': [],
+    },
+    {
       'kind': 'category',
       'name': 'CAT_LOGIC',
       'categorystyle': 'logic_category',
@@ -152,6 +157,21 @@ export const basic_toolbox: ToolboxConfiguration = {
           'type': 'controls_flow_statements',
         },
       ],
+    },
+    {
+      'kind': 'sep',
+    },
+    {
+      'kind': 'category',
+      'name': 'CAT_VARIABLES',
+      'categorystyle': 'variable_category',
+      'custom': 'VARIABLE',
+    },
+    {
+      'kind': 'category',
+      'name': 'CAT_FUNCTIONS',
+      'categorystyle': 'procedure_category',
+      'custom': 'PROCEDURE',
     },
   ]
 }
