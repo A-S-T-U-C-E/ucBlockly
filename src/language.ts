@@ -10,32 +10,33 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import * as Blockly from 'blockly';
-import { BlocklyApplicationType, µcB } from './index';
-import { basic_toolbox } from './toolbox';
-import { addReplaceParamToUrl, setParamsBlockly } from './tools';
-import { languagesMap, languagesMapBlockly, LanguageItem } from './languages/languageMap';
+import { BlocklyApplicationType } from './blockly_application_type';
+import { addReplaceParamToUrl } from './tools';
+import { languagesMap, LanguageItem } from './languages/languageMap';
+import { ToolboxConfiguration } from "./toolbox";
+
 
 /**
- * The function `getLangParamFromUrl` retrieves the language parameter from a URL and returns it,
- * defaulting to English if the parameter is not found or is invalid.
- * @param blocklyObject - The `blocklyObject` parameter is of type
- * `BlocklyApplicationType`.
- * @returns the value of the `lang` variable, which is a string representing the language parameter
- * obtained from the URL.
+ * The function `getLangParamFromUrl` retrieves the language parameter from the URL and updates the
+ * language menu if the parameter is valid.
+ * @returns The function `getLangParamFromUrl` returns the language parameter (`lang`) extracted from
+ * the URL query string. If the `lang` parameter is not found in the URL, it defaults to `'en'`. The
+ * function also updates the value of the `languageMenu` select element if it exists and the `lang`
+ * parameter is found in the `LANGUAGE_NAME` object.
  */
-const getLangParamFromUrl = (): string => {
-  const searchParams = new URLSearchParams(window.location.search);
-  let lang: string | null = searchParams.get('lang');
-  if (lang == null || µcB.LANGUAGE_NAME[lang] === null || !lang) {
-    // Default to English.
-    lang = 'en';
-    (document.getElementById('languageMenu')! as HTMLSelectElement).value = lang;
-  }
+export const getLangParamFromUrl = (): string => {
+  const lang = new URLSearchParams(window.location.search).get('lang') ?? 'en';
+  (document.getElementById('languageMenu') as HTMLSelectElement | null)!.value = lang;
   return lang;
-};
+}
 
-const getLangParamFromDropdown = (): string => {
+/**
+ * The function `getLangParamFromDropdown` retrieves the selected language value from a dropdown menu
+ * and updates the URL with the new language parameter.
+ * @returns The function `getLangParamFromDropdown` returns the selected value from a dropdown menu
+ * with the id 'languageMenu'.
+ */
+export const getLangParamFromDropdown = (): string => {
   const dropdownMenu: HTMLSelectElement = document.getElementById('languageMenu') as HTMLSelectElement;
   const newLang: string = dropdownMenu.options[dropdownMenu.selectedIndex].value;
   window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "lang", newLang));
@@ -43,76 +44,12 @@ const getLangParamFromDropdown = (): string => {
 };
 
 /**
- * The function checks if the language of a Blockly object is right-to-left (RTL).
- * @param blocklyObject - The `blocklyObject` parameter is an object that
- * represents the Blockly application. It likely contains various properties and methods related to the
- * Blockly functionality.
- * @returns a boolean value.
- */
-const isLangRtl = (blocklyObject: BlocklyApplicationType): boolean => {
-  return blocklyObject.LANGUAGE_RTL.indexOf(getLangParamFromUrl()) !== -1;
-};
-
-/**
- * The function `µcB_changeLanguage` changes the language and direction of the HTML, saves the
- * workspace blocks, disposes the workspace, sets the Blockly locale, changes the language of the
- * toolbox, injects the workspace, loads the saved blocks, and centers the workspace.
- */
-export const µcB_changeLanguage = (menuOrUrl: boolean): boolean => {
-  const newLang: string = menuOrUrl ? getLangParamFromDropdown() : getLangParamFromUrl();
-  // Set the HTML's language and direction.
-  const rtl: boolean = isLangRtl(µcB);
-  HTML_changeLanguage(newLang);
-  µcB_changeLanguageToolbox(newLang);
-  Blockly.setLocale(languagesMapBlockly[newLang]);
-  setParamsBlockly(µcB);
-  return rtl;
-};
-
-/**
- * The function `µcB_changeLanguageToolbox` changes the names of categories in a toolbox based on a
- * language map.
- * @param newLang - The `newLang` parameter is a string that represents the new language to
- * which the toolbox should be changed.
- */
-const µcB_changeLanguageToolbox = (newLang: string): void => {
-  const basic_toolboxCopy = JSON.parse(JSON.stringify(basic_toolbox.contents));
-  const langMap: LanguageItem = languagesMap[newLang];
-  interface Category {
-    kind: string;
-    name: string;
-    originalKey: string;
-    contents?: Category[];
-  }
-  /**
-   * The function replaces the name of a category with its corresponding translation if available in
-   * the language map.
-   * @param category - The parameter `category` is of type `Category`, which is an object
-   * that represents a category.
-   */
-  function replaceCategoryName(category: Category) {
-    if (category.kind === 'category' && category.name && langMap[category.name as keyof LanguageItem]) {
-      category.name = langMap[category.name as keyof LanguageItem];
-    }
-    if (category.contents) {
-      category.contents.forEach((content: Category) => {
-        replaceCategoryName(content);
-      });
-    }
-  }
-  basic_toolboxCopy.forEach((category: Category) => {
-    replaceCategoryName(category);
-  });
-  µcB.toolbox.contents = JSON.parse(JSON.stringify(basic_toolboxCopy));
-}
-
-/**
  * The function `HTML_changeLanguage` updates the text content of elements with the class "lang"
  * based on the selected language.
  * @param newLang - The `newLang` parameter is a string that represents the new language that
  * the user wants to change to.
  */
-const HTML_changeLanguage = (newLang: string): void => {
+export const HTML_changeLanguage = (newLang: string): void => {
   const langElements = document.querySelectorAll('.lang');
   const selectedLangItem = languagesMap[newLang];
   if (selectedLangItem) {
@@ -170,4 +107,51 @@ export const HTML_populateLanguages = (blocklyObject: BlocklyApplicationType): v
     }
     languageMenu.options.add(option);
   }
+}
+
+/**
+ * The function `changeLanguageToolbox` takes a new language and a toolbox configuration, replaces
+ * category names with translations if available, and returns the updated toolbox configuration.
+ * @param {string} newLang - `newLang` is a string parameter representing the new language code that
+ * you want to change the toolbox to. It is used to determine the language translation for the toolbox
+ * categories.
+ * @param {ToolboxConfiguration} toolbox - The `toolbox` parameter in the `changeLanguageToolbox`
+ * function is of type `ToolboxConfiguration`. It represents a configuration object that contains the
+ * contents of a toolbox, which is a collection of categories and blocks used in a programming
+ * environment. The function is designed to change the language of the toolbox
+ * @returns The function `changeLanguageToolbox` returns a new `ToolboxConfiguration` object with the
+ * categories' names replaced with their corresponding translations based on the provided `newLang`
+ * language parameter.
+ */
+export const changeLanguageToolbox = (newLang: string, toolbox: ToolboxConfiguration ): ToolboxConfiguration => {
+ const basic_toolboxCopy = JSON.parse(JSON.stringify(toolbox.contents));
+ const langMap: LanguageItem = languagesMap[newLang];
+ interface Category {
+   kind: string;
+   name: string;
+   categoryStyle: string;
+   contents?: Category[];
+ }
+ /**
+  * The function replaces the name of a category with its corresponding translation if available in
+  * the language map.
+  * @param category - The parameter `category` is of type `Category`, which is an object
+  * that represents a category.
+  */
+ function replaceCategoryName(category: Category) {
+   if (category.kind === 'category' && category.name && langMap[category.name as keyof LanguageItem]) {
+     category.name = langMap[category.name as keyof LanguageItem];
+   }
+   if (category.contents) {
+     category.contents.forEach((content: Category) => {
+       replaceCategoryName(content);
+     });
+   }
+ }
+ basic_toolboxCopy.forEach((category: Category) => {
+   replaceCategoryName(category);
+ });
+ const temp_toolboxCopy: ToolboxConfiguration = JSON.parse(JSON.stringify(toolbox));
+ temp_toolboxCopy.contents = JSON.parse(JSON.stringify(basic_toolboxCopy));
+ return(JSON.parse(JSON.stringify(temp_toolboxCopy)));
 }

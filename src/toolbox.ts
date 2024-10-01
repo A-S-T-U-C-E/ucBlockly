@@ -55,6 +55,18 @@ export type ToolboxConfiguration = {
 export const basic_toolbox: ToolboxConfiguration = {
   'kind': 'categoryToolbox',
   'contents': [
+    /*{
+      kind: 'category',
+      name: 'Frequently Used',
+      custom: 'MOST_USED',
+      categorystyle: 'frequently_used_category',
+    },
+    {
+      kind: 'category',
+      name: 'Recently Used',
+      custom: 'RECENTLY_USED',
+      categorystyle: 'recently_used_category',
+    },*/
     {
     'kind': 'search',
     'name': 'Search',

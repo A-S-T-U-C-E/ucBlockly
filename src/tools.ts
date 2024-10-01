@@ -4,8 +4,6 @@
  * @author scanet\@libreduc.cc (Sébastien Canet)
  */
 
-import { BlocklyApplicationType } from './index';
-
 /**
  * @license
  * Copyright 2023 ASTUCE (Sébastien Canet microcompany)
@@ -34,54 +32,11 @@ export const addReplaceParamToUrl = (url: string, param: string, value: string):
 };
 
 /**
- * The function `setParamsBlockly` sets parameters for a Blockly application based on URL query
- * parameters and updates the browser history.
- * @param {BlocklyApplicationType} app - The `app` parameter in the `setParamsBlockly` function is of
- * type `BlocklyApplicationType`. This parameter likely represents an instance of a Blockly application
- * or workspace where Blockly is being used for visual programming. It is used to access and modify
- * various options and settings related to the Blockly workspace, such
- */
-
-export const setParamsBlockly = (app: BlocklyApplicationType): void => {
-  const searchParams = new URLSearchParams(window.location.search);
-  let newParam: string | null;
-  let dropdownMenu: HTMLSelectElement;
-  newParam = searchParams.get('lang');
-  dropdownMenu = document.getElementById('languageMenu') as HTMLSelectElement;
-  if (newParam == null || newParam == "null")
-    newParam = dropdownMenu.options[dropdownMenu.selectedIndex].value;
-  else
-    (document.getElementById('languageMenu')! as HTMLSelectElement).value = newParam;
-  window.sessionStorage?.setItem('paramLang', newParam);
-  window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "lang", newParam));
-
-  newParam = searchParams.get('theme');
-  dropdownMenu = document.getElementById('themeMenu') as HTMLSelectElement;
-  if (newParam == null || newParam == "null")
-    newParam = dropdownMenu.options[dropdownMenu.selectedIndex].value;
-  else
-    (document.getElementById('themeMenu')! as HTMLSelectElement).value = newParam;
-  app.WORKSPACE_OPTIONS['theme'] = newParam;
-  window.sessionStorage?.setItem('paramTheme', newParam);
-  window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "theme", newParam));
-
-  newParam = searchParams.get('renderer');
-  dropdownMenu = document.getElementById('rendererMenu') as HTMLSelectElement;
-  if (newParam == null || newParam == "null")
-    newParam = dropdownMenu.options[dropdownMenu.selectedIndex].value;
-  else
-    (document.getElementById('rendererMenu')! as HTMLSelectElement).value = newParam;
-  app.WORKSPACE_OPTIONS['renderer'] = newParam;
-  window.sessionStorage?.setItem('paramRenderer', newParam);
-  window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "renderer", newParam));
-};
-
-/**
  * The function `setPluginsInURL` updates the URL parameters based on the state of a checkbox for a
  * specific plugin.
- * @param {string} pluginName - The `pluginName` parameter in the `setPluginsInURL` function is a
+ * @param pluginName - The `pluginName` parameter in the `setPluginsInURL` function is a
  * string that represents the name of a plugin.
- * @param {string} pluginKey - The `pluginKey` parameter in the `setPluginsInURL` function is a string
+ * @param pluginKey - The `pluginKey` parameter in the `setPluginsInURL` function is a string
  * that represents the key associated with a specific plugin. This key is used to identify the plugin
  * in the URL parameters when setting or updating the plugins in the URL.
  */

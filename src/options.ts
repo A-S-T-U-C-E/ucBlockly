@@ -1,6 +1,4 @@
 import * as Blockly from 'blockly';
-import { workspaceReboot, BlocklyApplicationType } from './index';
-import { addReplaceParamToUrl } from './tools';
 
 import DarkTheme from '@blockly/theme-dark';
 import ModernTheme from '@blockly/theme-modern';
@@ -25,7 +23,7 @@ const SeshatTheme = Blockly.Theme.defineTheme('theme-seshat', {
  * @param themeChoice - The `themeChoice` parameter is a string that represents the
  * chosen theme. It is optional and has a default value of `'classic'`.
  */
-const themeMappings: { [key: string]: Blockly.Theme } = {
+export const themeMappings: { [key: string]: Blockly.Theme } = {
   classic: Blockly.Themes.Classic,
   modern: ModernTheme,
   deuteranopia: DeuteranopiaTheme,
@@ -36,28 +34,3 @@ const themeMappings: { [key: string]: Blockly.Theme } = {
   blackWhite: BandWTheme,
   seshat: SeshatTheme,
 };
-
-export const changeTheme = (app: BlocklyApplicationType, themeChoice?: string): string => {
-  if (!themeChoice)
-    themeChoice = (document.getElementById('themeMenu') as HTMLSelectElement).value;
-  app.WORKSPACE_OPTIONS['theme'] = themeMappings[themeChoice];
-  if (themeMappings.hasOwnProperty(themeChoice)) {
-    (app.workspace as Blockly.WorkspaceSvg).setTheme(themeMappings[themeChoice]);
-  }
-  workspaceReboot(app);
-  window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "theme", themeChoice));
-  return themeChoice;
-}
-
-/**
- * The function `changeRenderer` updates the renderer option in the `µcB.WORKSPACE_OPTIONS` object and
- * then reboots the workspace.
- * @param renderNew - The `renderNew` parameter is a string that represents the value of the
- * selected option in the `rendererMenu` HTML select element.
- */
-export const changeRenderer = (app: BlocklyApplicationType, renderNew: string = (document.getElementById('rendererMenu') as HTMLSelectElement).value): string => {
-  app.WORKSPACE_OPTIONS['renderer'] = renderNew;
-  workspaceReboot(app);
-  window.history.pushState({}, "µcB", addReplaceParamToUrl(window.location.search, "renderer", renderNew));
-  return renderNew;
-}

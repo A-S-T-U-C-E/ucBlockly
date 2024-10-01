@@ -9,33 +9,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import * as Blockly from 'blockly/core';
+//import * as Blockly from 'blockly/core';
 
-/**
- * The function `workspaceSaveBlocks` saves the blocks in a Blockly workspace to the local storage.
- * @param workspace - The `workspace` parameter is an instance of the Blockly.Workspace class. It
- * represents the Blockly workspace that contains all the blocks and their connections.
- */
-export const workspaceSaveBlocks = function(workspace: Blockly.Workspace, storageKeyWorkspaceBlocks: string) {
-  const data = Blockly.serialization.workspaces.save(workspace);
-  window.sessionStorage?.setItem(storageKeyWorkspaceBlocks, JSON.stringify(data));
-};
-
-/**
- * The function loads blocks into a Blockly workspace from session storage.
- * @param workspace - The `workspace` parameter is an instance of the `Blockly.Workspace` class. It
- * represents the Blockly workspace where blocks are loaded.
- * @returns If the `data` variable is falsy (null, undefined, empty string), then nothing is being
- * returned.
- */
-export const workspaceLoadBlocks = function(workspace: Blockly.Workspace, storageKeyWorkspaceBlocks: string) {
-  const data = window.sessionStorage?.getItem(storageKeyWorkspaceBlocks);
-  if (!data) return;
-  Blockly.serialization.workspaces.load(JSON.parse(data), workspace);
-};
 
 //blockly json serialization and merging 
-/* function remove_blocks(obj: Blockly.Block) {
+/*function remove_blocks(obj: Blockly.Block) {
   const properties = Object.getOwnPropertyNames(obj)
   for (const element of properties) {
     if (element == 'block') {
@@ -91,4 +69,4 @@ function load_mergeable(saved_blocks, workspace) {
     const id = element;
     Blockly.serialization.blocks.append(saved_blocks[id], workspace)
   }
-} */
+}*/

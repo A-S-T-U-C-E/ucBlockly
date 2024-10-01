@@ -1,3 +1,9 @@
+v2.0.1, 2023-06-25
+- updated with Blockly v11.1.1
+- change toolbox between categories and continuous 'Scratch like'
+- fix bugs
+- add comments on workspace
+
 v2.0.0, 2023-09-09
 - up to date with Blockly v10
 - use Blockly sample app in Typescript
