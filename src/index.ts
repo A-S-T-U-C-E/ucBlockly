@@ -13,6 +13,7 @@ import * as Blockly from "blockly";
 import * as monaco from 'monaco-editor';
 import "@blockly/block-plus-minus";
 import "@blockly/toolbox-search";
+import { createSwapy } from 'swapy';
 
 import { arduinoGenerator } from "./generators/arduino";
 import { HTML_populateLanguages, changeLanguageToolbox, getLangParamFromUrl } from "./language";
@@ -28,6 +29,34 @@ import { ContinuousToolbox, ContinuousFlyout, ContinuousMetrics } from '@blockly
 import "./css/index.css";
 import "./css/µcBlockly.css";
 
+const container = document.querySelector('.wrapper_global') as HTMLElement
+const swapy = createSwapy(container, {
+  animation: 'dynamic',
+  swapMode: 'drop',
+  // autoScrollOnDrag: true,
+  // enabled: true,
+  // dragAxis: 'x',
+  // dragOnHold: true
+})
+
+swapy.onBeforeSwap((event) => {
+  console.log('beforeSwap', event)
+  // This is for dynamically enabling and disabling swapping.
+  // Return true to allow swapping, and return false to prevent swapping.
+  return true
+})
+
+swapy.onSwapStart((event) => {
+  console.log('start', event)
+})
+
+swapy.onSwap((event) => {
+  console.log('swap', event)
+})
+
+swapy.onSwapEnd((event) => {
+  console.log('swap end:', event)
+})
 
 // Set up UI elements
 const div_workspace_content_area: HTMLElement = document.getElementById("div_workspace_content_area")!;

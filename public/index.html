@@ -52,21 +52,33 @@
     </div>
     <flex id="flex_container_up" class="wrapper_element" style="flex: 1;">
       <flex-item id="flex_container_up_left" style="flex: 1;">
-        <div id="div_workspace_content_area"></div>
-        <div id="div_workspace_content_blockly" style="position: absolute"></div>
+        <div class="slot top-left" data-swapy-slot="a">
+          <div class="item item-a" data-swapy-item="a">
+            <div id="div_workspace_content_area"></div>
+            <div id="div_workspace_content_blockly" style="position: absolute"></div>
+          </div>
+        </div>
       </flex-item>
       <flex-resizer></flex-resizer>
       <flex-item id="flex_container_up_right" style="flex-basis: 0px;">
         <flex-item id="flex_content_code">
-          <pre id="div_content_code"><code></code></pre>
-          <div id="div_content_monacoEditor"></div>
+          <div class="slot top-right" data-swapy-slot="b">
+            <div class="item item-b" data-swapy-item="b">
+              <pre id="div_content_code"><code></code></pre>
+              <div id="div_content_monacoEditor"></div>
+            </div>
+          </div>
         </flex-item>
       </flex-item>
     </flex>
     <flex-resizer></flex-resizer>
     <flex id="flex_container_bottom" class="wrapper_element" style="flex-basis: 0px;">
       <flex-item id="flex_container_bottom_down" style="flex: 1;">
-        <pre id="content_console"><code></code></pre>
+        <div class="slot bottom" data-swapy-slot="c">
+          <div class="item item-c" data-swapy-item="c">
+            <pre id="content_console"><code></code></pre>
+          </div>
+        </div>
       </flex-item>
     </flex>
   </flex>
