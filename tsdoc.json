@@ -4,15 +4,30 @@
   "tagDefinitions": [
     {
       "tagName": "@author",
-      "syntaxKind": "modifier"
+      "syntaxKind": "block"
     },
     {
       "tagName": "@license",
-      "syntaxKind": "modifier"
+      "syntaxKind": "block"
+    },
+    {
+      "tagName": "@fileoverview",
+      "syntaxKind": "block"
+    },
+    {
+      "tagName": "@return",
+      "syntaxKind": "block"
+    },
+    {
+      "tagName": "@type",
+      "syntaxKind": "inline"
     }
   ],
   "supportForTags": {
     "@author": true,
-    "@license": true
+    "@license": true,
+    "@fileoverview": true,
+    "@return": true,
+    "@type": true
   }
 }

@@ -24,7 +24,7 @@ export * from './arduino/arduino_generator';
 
 /**
  * Arduino code generator instance.
- * @type {!ArduinoGenerator}
+ * {@type ArduinoGenerator}
  */
 export const arduinoGenerator: ArduinoGenerator = new ArduinoGenerator();
 // Add reserved words.  This list should include all words mentioned

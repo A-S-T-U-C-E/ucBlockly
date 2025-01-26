@@ -112,10 +112,10 @@ export const HTML_populateLanguages = (blocklyObject: BlocklyApplicationType): v
 /**
  * The function `changeLanguageToolbox` takes a new language and a toolbox configuration, replaces
  * category names with translations if available, and returns the updated toolbox configuration.
- * @param {string} newLang - `newLang` is a string parameter representing the new language code that
+ * @param newLang - `newLang` is a string parameter representing the new language code that
  * you want to change the toolbox to. It is used to determine the language translation for the toolbox
  * categories.
- * @param {ToolboxConfiguration} toolbox - The `toolbox` parameter in the `changeLanguageToolbox`
+ * @param toolbox - The `toolbox` parameter in the `changeLanguageToolbox`
  * function is of type `ToolboxConfiguration`. It represents a configuration object that contains the
  * contents of a toolbox, which is a collection of categories and blocks used in a programming
  * environment. The function is designed to change the language of the toolbox

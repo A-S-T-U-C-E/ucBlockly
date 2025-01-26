@@ -220,34 +220,38 @@ export class BlocklyApplication implements BlocklyApplicationType {
       const pluginContinuousToolboxFlyout = <HTMLInputElement>(
         document.getElementById("pluginContinuousToolboxFlyout")
       );
-      const continuousFlyout = (this.workspace as Blockly.WorkspaceSvg).getToolbox()!.getFlyout();
+      const continuousFlyout: Blockly.IFlyout | null
+        = (this.workspace as Blockly.WorkspaceSvg).getToolbox()!.getFlyout();
 
-      const onWorkspaceChanged = (event: any) => {
+      const onWorkspaceChanged = (event: Blockly.Events.Abstract): void => {
         if (!continuousFlyout) return; // Add this null check
-        if ((event.type == "create" || event.type == "click") && continuousFlyout.isVisible()) {
+        if ((event.type == Blockly.Events.BLOCK_CHANGE || event.type == "click") && continuousFlyout.isVisible()) {
           continuousFlyout.setVisible(false);
         } else if (event.type == "toolbox_item_select" && !continuousFlyout.isVisible()) {
           continuousFlyout.setVisible(true);
-        } else if (event.type == "toolbox_item_select" && (!event.newItem) && continuousFlyout.isVisible()) {
-          (this.workspace as Blockly.WorkspaceSvg).getToolbox()!.clearSelection();
-          setTimeout(function () {
-            if (continuousFlyout.isVisible())
-              continuousFlyout.setVisible(false);
-          }, 20);
+        } else if (event.type == "toolbox_item_select") {
+          const toolboxChangeEvent = event as Blockly.Events.ToolboxItemSelect;
+          if (!toolboxChangeEvent.newItem && continuousFlyout.isVisible()) {
+            (this.workspace as Blockly.WorkspaceSvg).getToolbox()!.clearSelection();
+            setTimeout(function () {
+              if (continuousFlyout.isVisible())
+                continuousFlyout.setVisible(false);
+            }, 20);
+          }
         }
-      }
-      if (!pluginContinuousToolboxFlyout.checked) {
-        continuousFlyout!.setVisible(false);
-        const blocklyWorkspace = document.getElementsByClassName("blocklyFlyout");
-        for (const element of blocklyWorkspace) {
-          element.addEventListener('dblclick', function () {
-            continuousFlyout!.setVisible(false);
-            Blockly.hideChaff();
-          });
+        if (!pluginContinuousToolboxFlyout.checked) {
+          continuousFlyout.setVisible(false);
+          const blocklyWorkspace = document.getElementsByClassName("blocklyFlyout");
+          for (const element of blocklyWorkspace) {
+            element.addEventListener('dblclick', function () {
+              continuousFlyout!.setVisible(false);
+              Blockly.hideChaff();
+            });
+          }
         }
-      }
-      else {
-        continuousFlyout!.setVisible(true);
+        else {
+          continuousFlyout.setVisible(true);
+        }
       }
       this.workspace.addChangeListener(onWorkspaceChanged);
     }

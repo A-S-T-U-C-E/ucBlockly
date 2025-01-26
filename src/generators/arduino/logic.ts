@@ -120,18 +120,14 @@ export function logic_negate(
 }
 
 export function logic_boolean(
-  block: Block,
-  generator: ArduinoGenerator,
+  block: Block
 ): [string, Order] {
   // Boolean values true and false.
   const code = block.getFieldValue("BOOL") === "TRUE" ? "true" : "false";
   return [code, Order.ATOMIC];
 }
 
-export function logic_null(
-  block: Block,
-  generator: ArduinoGenerator,
-): [string, Order] {
+export function logic_null(): [string, Order] {
   // Null data type.
   return ["null", Order.ATOMIC];
 }

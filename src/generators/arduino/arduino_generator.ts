@@ -70,7 +70,7 @@ export class ArduinoGenerator extends Blockly.CodeGenerator {
   private loops_ = Object.create(null);
   /**
    * List of outer-inner pairings that do NOT require parentheses.
-   * @type {!Array<!Array<number>>}
+   * {@type !Array<!Array<number\>\>}
    */
   ORDER_OVERRIDES: [Order, Order][] = [
     // (foo()).bar -> foo().bar
@@ -131,7 +131,7 @@ export class ArduinoGenerator extends Blockly.CodeGenerator {
   /**
    * Initialise the database of variable names.
    *
-   * @param workspace Workspace to generate code from.
+   * @param workspace - Workspace to generate code from.
    */
   init(workspace: Blockly.Workspace) {
     super.init(workspace);
@@ -188,7 +188,7 @@ export class ArduinoGenerator extends Blockly.CodeGenerator {
   /**
    * Prepend the generated code with the variable definitions.
    *
-   * @param code Generated code.
+   * @param code - Generated code.
    * @returns Completed code.
    */
   finish(code: string): string {
@@ -279,8 +279,8 @@ export class ArduinoGenerator extends Blockly.CodeGenerator {
   /**
    * Naked values are top-level blocks with outputs that aren't plugged into
    * anything.  A trailing semicolon is needed to make this legal.
-   * @param {string} line Line of generated code.
-   * @return {string} Legal line of code.
+   * @param line - Line of generated code.
+   * @returns Legal line of code.
    */
   scrubNakedValue(line: string): string {
     return line + "\n";
@@ -289,7 +289,7 @@ export class ArduinoGenerator extends Blockly.CodeGenerator {
   /**
    * Encode a string as a properly escaped Arduino string, complete with quotes.
    *
-   * @param string Text to encode.
+   * @param string - Text to encode.
    * @returns Arduino string.
    */
   quote_(string: string): string {
@@ -310,7 +310,7 @@ export class ArduinoGenerator extends Blockly.CodeGenerator {
    * Encode a string as a properly escaped multiline Arduino string, complete
    * with quotes.
    *
-   * @param string Text to encode.
+   * @param string - Text to encode.
    * @returns Arduino string.
    */
   multiline_quote_(string: string): string {
@@ -325,9 +325,9 @@ export class ArduinoGenerator extends Blockly.CodeGenerator {
    * Handles comments for the specified block and any connected value blocks.
    * Calls any statements following this block.
    *
-   * @param block The current block.
-   * @param code The Arduino code created for this block.
-   * @param thisOnly True to generate code for only this statement.
+   * @param block - The current block.
+   * @param code - The Arduino code created for this block.
+   * @param thisOnly - True to generate code for only this statement.
    * @returns Arduino code with comments and subsequent blocks added.
 
    */
